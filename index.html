@@ -3,14 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="screen-orientation" content="landscape">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#07090d">
-  <title>Pokémon FireRed HD-2D</title>
+  <title>Pokémon Battle Arena</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="rotateHint" aria-live="polite">
+    <div class="rotate-inner">
+      <div class="rotate-icon" aria-hidden="true"></div>
+      <p class="rotate-title">TURN YOUR PHONE</p>
+      <p class="rotate-sub">Use landscape (horizontal) to play.<br>All menus and battles fit on screen.</p>
+    </div>
+  </div>
   <div id="stage">
     <div id="bg"></div>
     <div id="rays"><span></span><span></span></div>
@@ -90,14 +98,29 @@
     <div id="fade"></div>
 
     <div id="title">
-      <div class="logo">
-        <div class="l1">POKéMON</div>
-        <div class="l2">FIRE RED</div>
-        <div class="l3">HD-2D EDITION</div>
+      <div class="title-bg"></div>
+      <div class="title-pika" aria-hidden="true"><img src="assets/sprites/25.gif" alt=""></div>
+      <div class="title-rays"><span></span><span></span><span></span></div>
+      <div class="title-orbs">
+        <div class="t-orb o1"></div><div class="t-orb o2"></div><div class="t-orb o3"></div><div class="t-orb o4"></div>
       </div>
-      <div class="vs">809 POKéMON · EVERY GYM LEADER · LEGENDARY BOSSES</div>
-      <div class="press">TAP / CLICK / PRESS Z TO START</div>
-      <div class="controls">ARROWS move · Z / ENTER confirm · X / ESC back · M sound · TAP works everywhere</div>
+      <div class="title-stack">
+        <div class="title-logo-wrap">
+          <div class="title-ray" aria-hidden="true"><img src="assets/sprites/384.gif" alt=""></div>
+          <img class="title-logo" src="assets/pokemon_logo.svg" alt="Pokémon">
+        </div>
+        <div class="title-arena"><span>BATTLE ARENA</span></div>
+        <ul class="title-tags">
+          <li>809 POKéMON</li>
+          <li>GYM LEADERS</li>
+          <li>LEGENDARY BOSSES</li>
+        </ul>
+        <div class="title-start">
+          <span class="title-start-arrow">▶</span>
+          <span class="title-start-text">TAP · CLICK · PRESS Z TO START</span>
+        </div>
+      </div>
+      <div class="title-controls">ARROWS · Z confirm · X back · M sound</div>
     </div>
   </div>
 
