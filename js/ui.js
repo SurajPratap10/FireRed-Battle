@@ -52,21 +52,15 @@ const UI = (() => {
     FX.init(document.getElementById('fx'));
   }
 
-  function tryLandscapeLock() {
-    const o = screen.orientation;
-    if (!o?.lock) return;
-    o.lock('landscape').catch(() => {});
-  }
-
   function fitStage() {
     const vv = window.visualViewport;
     const vw = vv ? vv.width : window.innerWidth, vh = vv ? vv.height : window.innerHeight;
-    const touch = window.matchMedia('(pointer: coarse)').matches;
-    const portraitPhone = touch && vh > vw * 1.02;
-    const s = Math.max(vw / 1280, vh / 720);
+    const s = Math.min(vw / 1280, vh / 720);
     el.stage.style.transform = `translate(-50%, -50%) scale(${s})`;
-    document.body.classList.toggle('portrait-touch', portraitPhone);
-    document.body.classList.toggle('landscape-touch', touch && !portraitPhone);
+    const portrait = vh > vw * 1.02;
+    const narrow = vw < 900 || vh < 760 || portrait;
+    document.body.classList.toggle('portrait-ui', portrait);
+    document.body.classList.toggle('narrow-ui', narrow);
   }
 
   function place(node, p) {
@@ -661,7 +655,7 @@ const UI = (() => {
   function title() {
     return new Promise((res) => {
       const go = () => {
-        Input.clear(); el.title.onclick = null; tryLandscapeLock(); SFX.init(); SFX.play('select');
+        Input.clear(); el.title.onclick = null; SFX.init(); SFX.play('select');
         el.title.classList.add('gone'); setTimeout(() => el.title.remove(), 700); fitStage(); res();
       };
       el.title.onclick = go;

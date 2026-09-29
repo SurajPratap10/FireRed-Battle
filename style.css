@@ -507,62 +507,65 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 .res-btn2 { font-size: 14px; padding: 14px 18px; border-radius: 8px; cursor: pointer; background: #34465e; border: 3px solid #5a6a8a; }
 .res-btn2.sel { border-color: #ffd84a; background: #f08030; }
 
-/* ---------------- mobile landscape (no portrait rotate hack) ---------------- */
-#rotateHint {
-  display: none; position: fixed; inset: 0; z-index: 99999;
-  background: linear-gradient(165deg, #0a120c, #142818 45%, #0e1a10);
-  align-items: center; justify-content: center; text-align: center;
-  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
-}
-body.portrait-touch #rotateHint { display: flex; }
-body.portrait-touch #stage { visibility: hidden; pointer-events: none; }
+/* ---------------- mobile / narrow viewport (DevTools + phones) ---------------- */
+body.narrow-ui #builder,
+body.narrow-ui #opponents { padding: 8px 10px; gap: 6px; }
+body.narrow-ui .bm-head { flex-wrap: wrap; gap: 6px; padding-right: 64px; }
+body.narrow-ui .bm-title { font-size: 11px; line-height: 1.5; }
+body.narrow-ui .bm-sub { font-size: 8px; margin-left: 6px; }
+body.narrow-ui .bm-btns { gap: 6px; }
+body.narrow-ui .bm-btns .btn { font-size: 8px; padding: 6px 8px; }
+body.narrow-ui .tb-gens .tab { font-size: 7px; padding: 5px 6px; }
+body.narrow-ui #tbSearch { width: 140px; font-size: 9px; padding: 6px 8px; }
+body.narrow-ui #tbType { font-size: 9px; padding: 6px 8px; max-width: 110px; }
+body.narrow-ui #tbFound { font-size: 8px; }
+body.narrow-ui .tb-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 4px; }
+body.narrow-ui .tb-card { height: 80px; }
+body.narrow-ui .tb-card img { width: 48px; height: 48px; }
+body.narrow-ui .tb-right { width: min(320px, 34%); }
+body.narrow-ui .tb-slot { height: 84px; }
+body.narrow-ui .tb-slot img { width: 44px; height: 44px; }
+body.narrow-ui .tb-detail { padding: 8px; overflow-y: auto; }
+body.narrow-ui .bd-top img { width: 64px; height: 64px; }
+body.narrow-ui .bd-name { font-size: 8px; line-height: 12px; }
+body.narrow-ui .bd-stat { font-size: 7px; grid-template-columns: 38px 28px 1fr; }
+body.narrow-ui .bd-moves { grid-template-columns: 1fr; gap: 3px; }
+body.narrow-ui .op-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+body.narrow-ui .op-card { padding: 6px; grid-template-columns: 52px 1fr; column-gap: 6px; }
+body.narrow-ui .op-sprite { width: 52px; height: 52px; }
+body.narrow-ui .op-name { font-size: 9px; }
+body.narrow-ui .op-team img { width: 28px; height: 28px; }
+body.narrow-ui .op-bar { height: 52px; padding: 0 10px; }
+body.narrow-ui .op-quote { font-size: 8px; line-height: 14px; }
 
-.rotate-inner { max-width: 340px; }
-.rotate-icon {
-  width: 72px; height: 112px; margin: 0 auto 28px; border-radius: 14px; border: 4px solid #d0b060;
-  background: linear-gradient(#1c2840, #0e1420); box-shadow: 0 0 24px rgba(208, 176, 96, 0.35);
-  animation: rotate-phone 2.2s ease-in-out infinite;
+body.portrait-ui #builder .tb-body,
+body.portrait-ui #opponents .tb-body { flex-direction: column; }
+body.portrait-ui #builder .tb-right,
+body.portrait-ui #opponents .tb-right {
+  width: 100%; flex: 0 0 auto; max-height: 252px; min-height: 0;
+  display: grid; grid-template-columns: 1fr 1.15fr; grid-template-rows: auto 1fr; gap: 6px 10px;
 }
-.rotate-icon::before {
-  content: ''; display: block; width: 100%; height: 100%; border-radius: 10px;
-  background: linear-gradient(90deg, transparent 42%, rgba(255, 224, 138, 0.15) 50%, transparent 58%);
-}
-@keyframes rotate-phone {
-  0%, 100% { transform: rotate(0deg); }
-  40% { transform: rotate(-90deg); }
-  60% { transform: rotate(-90deg); }
-}
-.rotate-title { font-size: 14px; color: #ffe08a; text-shadow: 2px 2px 0 #111; margin-bottom: 14px; line-height: 1.6; }
-.rotate-sub { font-size: 9px; color: #9fb4d8; line-height: 1.85; }
+body.portrait-ui .tb-right .tb-label { grid-column: 1 / -1; font-size: 10px; }
+body.portrait-ui .tb-team { grid-template-columns: repeat(3, 1fr); }
+body.portrait-ui .tb-slot { height: 68px; }
+body.portrait-ui .tb-slot img { width: 36px; height: 36px; }
+body.portrait-ui .tb-sname { font-size: 6px; }
+body.portrait-ui .tb-detail { grid-column: 2; grid-row: 2; max-height: 168px; }
+body.portrait-ui .tb-team { grid-column: 1; grid-row: 2; align-content: start; }
+body.portrait-ui .op-grid { grid-template-columns: repeat(2, 1fr); }
 
-body.landscape-touch #builder,
-body.landscape-touch #opponents { padding: 8px 12px; gap: 6px; }
-body.landscape-touch .bm-head { padding-right: 56px; }
-body.landscape-touch .bm-title { font-size: 14px; }
-body.landscape-touch .bm-sub { font-size: 9px; margin-left: 8px; }
-body.landscape-touch .tb-body { gap: 8px; }
-body.landscape-touch .tb-gens .tab { font-size: 8px; padding: 6px 8px; }
-body.landscape-touch #tbSearch { width: min(220px, 38vw); font-size: 10px; padding: 6px 8px; }
-body.landscape-touch #tbType { font-size: 10px; padding: 6px 8px; }
-body.landscape-touch .tb-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 4px; }
-body.landscape-touch .tb-card { height: 86px; }
-body.landscape-touch .tb-card img { width: 52px; height: 52px; }
-body.landscape-touch .tb-right { width: min(360px, 42vw); }
-body.landscape-touch .tb-slot { height: 92px; }
-body.landscape-touch .tb-slot img { width: 48px; height: 48px; }
-body.landscape-touch .tb-detail { padding: 8px 10px; }
-body.landscape-touch .bd-top img { width: 72px; height: 72px; }
-body.landscape-touch .bd-name { font-size: 10px; line-height: 14px; }
-body.landscape-touch .bd-stat { font-size: 7px; grid-template-columns: 42px 30px 1fr; }
-body.landscape-touch .op-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-body.landscape-touch .op-card { padding: 6px; column-gap: 6px; grid-template-columns: 56px 1fr; }
-body.landscape-touch .op-sprite { width: 56px; height: 56px; }
-body.landscape-touch .op-name { font-size: 10px; }
-body.landscape-touch .op-team img { width: 32px; height: 32px; }
+body.portrait-ui .title-ray { display: none; }
+body.portrait-ui .title-pika { opacity: 0.35; right: 2%; bottom: 12%; }
+body.portrait-ui .title-pika img { width: 100px; }
+body.portrait-ui .t-orb.o1, body.portrait-ui .t-orb.o3 { display: none; }
+body.portrait-ui .title-arena span { letter-spacing: 6px; font-size: clamp(22px, 4vw, 36px); }
+body.portrait-ui .title-tags li { font-size: 9px; }
+body.portrait-ui .title-start-text { font-size: 11px; }
+body.portrait-ui .title-controls { font-size: 8px; margin-top: 16px; }
+body.portrait-ui .title-stack { gap: 10px; }
 
-@media (pointer: coarse) and (max-height: 420px) {
-  body.landscape-touch .tb-right { width: min(300px, 40vw); }
-  body.landscape-touch .tb-detail .bd-stats { display: none; }
-  body.landscape-touch .tb-detail .bd-moves { grid-template-columns: 1fr; }
-  body.landscape-touch .op-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-height: 500px) {
+  body.narrow-ui .tb-right { width: min(280px, 32%); }
+  body.narrow-ui .tb-detail .bd-stats { display: none; }
+  body.narrow-ui .op-grid { grid-template-columns: repeat(2, 1fr); }
 }
