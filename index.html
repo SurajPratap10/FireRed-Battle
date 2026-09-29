@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#07090d">
+  <title>Pokémon FireRed HD-2D</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="bg"></div>
+    <div id="rays"><span></span><span></span></div>
+
+    <div id="field">
+      <div class="actor trainer" id="foeTrainer"><div class="shadow"></div><img alt=""></div>
+      <div class="actor mon" id="foeMon"><div class="shadow"></div><img alt=""></div>
+      <div class="actor trainer" id="playerTrainer"><div class="shadow"></div><img alt=""></div>
+      <div class="actor mon" id="playerMon"><div class="shadow"></div><img alt=""></div>
+    </div>
+
+    <canvas id="fx" width="1280" height="720"></canvas>
+    <div id="grade"></div>
+
+    <div class="hpbox hidden" id="foeBox">
+      <div class="row1"><span class="name"></span><span class="gender"></span><span class="lv"></span></div>
+      <div class="hprow"><span class="status"></span><span class="hplabel">HP</span><div class="hpbar"><div class="hpfill"></div></div></div>
+    </div>
+    <div class="balls hidden" id="foeBalls"></div>
+
+    <div class="hpbox hidden" id="playerBox">
+      <div class="row1"><span class="name"></span><span class="gender"></span><span class="lv"></span></div>
+      <div class="hprow"><span class="status"></span><span class="hplabel">HP</span><div class="hpbar"><div class="hpfill"></div></div></div>
+      <div class="hpnum"></div>
+      <div class="exprow"><span class="explabel">EXP</span><div class="expbar"><div class="expfill"></div></div></div>
+    </div>
+    <div class="balls hidden" id="playerBalls"></div>
+
+    <div id="credit">HD-2D BATTLE</div>
+    <div id="sound">♪ ON</div>
+
+    <div id="textbox"><div id="text"></div><div id="arrow">▼</div></div>
+
+    <div id="actionMenu" class="hidden">
+      <div class="opt">FIGHT</div><div class="opt">BAG</div>
+      <div class="opt">POKéMON</div><div class="opt">RUN</div>
+    </div>
+
+    <div id="moveMenu" class="hidden">
+      <div class="moves">
+        <div class="move"></div><div class="move"></div>
+        <div class="move"></div><div class="move"></div>
+      </div>
+      <div id="moveInfo">
+        <div class="ppline"><span>PP</span><span class="pp"></span></div>
+        <div class="typeline"><span>TYPE/</span><span class="type"></span></div>
+        <div class="cat"></div>
+        <div class="back">✕ BACK</div>
+      </div>
+    </div>
+
+    <div id="yesno" class="hidden"><div class="opt">YES</div><div class="opt">NO</div></div>
+    <div id="choice" class="hidden"></div>
+
+    <div id="builder" class="hidden"></div>
+    <div id="opponents" class="hidden"></div>
+    <div id="bmresult" class="hidden"></div>
+
+    <div id="party" class="screen hidden">
+      <div class="ptitle">POKéMON</div>
+      <div class="slots"></div>
+      <div class="pbottom"><div class="pmsg"></div><div class="cancel">CANCEL</div></div>
+      <div class="submenu hidden"></div>
+    </div>
+
+    <div id="bag" class="screen hidden">
+      <div class="bag-inner">
+        <div class="bag-title">BAG · ITEMS</div>
+        <div class="items"></div>
+        <div class="desc"></div>
+      </div>
+    </div>
+
+    <div id="summary" class="screen hidden"></div>
+    <div id="result" class="screen hidden"></div>
+
+    <div id="fade"></div>
+
+    <div id="title">
+      <div class="logo">
+        <div class="l1">POKéMON</div>
+        <div class="l2">FIRE RED</div>
+        <div class="l3">HD-2D EDITION</div>
+      </div>
+      <div class="vs">809 POKéMON · EVERY GYM LEADER · LEGENDARY BOSSES</div>
+      <div class="press">TAP / CLICK / PRESS Z TO START</div>
+      <div class="controls">ARROWS move · Z / ENTER confirm · X / ESC back · M sound · TAP works everywhere</div>
+    </div>
+  </div>
+
+  <script src="js/dex.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/trainers.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/battlemode.js"></script>
+  <script src="js/game.js"></script>
+  <script>Game.boot();</script>
+</body>
+</html>
