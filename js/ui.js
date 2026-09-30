@@ -55,12 +55,19 @@ const UI = (() => {
   function fitStage() {
     const vv = window.visualViewport;
     const vw = vv ? vv.width : window.innerWidth, vh = vv ? vv.height : window.innerHeight;
-    const s = Math.min(vw / 1280, vh / 720);
-    el.stage.style.transform = `translate(-50%, -50%) scale(${s})`;
     const portrait = vh > vw * 1.02;
-    const narrow = vw < 900 || vh < 760 || portrait;
+    const mobile = window.matchMedia('(pointer: coarse)').matches || vw < 960;
+    const landscape = !portrait;
+    let s = Math.min(vw / 1280, vh / 720);
+    if (mobile && landscape) {
+      const fillW = vw / 1280;
+      if (720 * fillW <= vh * 0.99) s = fillW;
+    }
+    el.stage.style.transform = `translate(-50%, -50%) scale(${s})`;
     document.body.classList.toggle('portrait-ui', portrait);
-    document.body.classList.toggle('narrow-ui', narrow);
+    document.body.classList.toggle('mobile-ui', mobile);
+    document.body.classList.toggle('mobile-landscape', mobile && landscape);
+    document.body.classList.toggle('narrow-ui', mobile || vw < 900 || vh < 760 || portrait);
   }
 
   function place(node, p) {
