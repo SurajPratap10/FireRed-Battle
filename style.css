@@ -714,3 +714,50 @@ body.mobile-ui .rand-sprites img { width: 44px; height: 44px; }
   body.mobile-landscape .tb-detail .bd-moves { display: none; }
   body.mobile-landscape .bm-title { font-size: 8px; }
 }
+
+/* Mobile landscape: full viewport width + fit visible height */
+body.mobile-landscape-fill #stage { max-width: 100vw; }
+
+body.mobile-landscape-fill #builder,
+body.mobile-landscape-fill #opponents {
+  max-height: var(--logic-vh, 720px);
+  min-height: 0;
+}
+
+body.mobile-landscape-short #builder .tb-body,
+body.mobile-landscape-short #opponents .tb-body {
+  flex: 1;
+  min-height: 0;
+  max-height: calc(var(--logic-vh, 720px) - 118px);
+}
+
+body.mobile-landscape-short .tb-detail .bd-stats,
+body.mobile-landscape-short .tb-detail .bd-moves { display: none; }
+body.mobile-landscape-short .tb-right { width: 248px; }
+body.mobile-landscape-short .tb-card { height: 72px; }
+body.mobile-landscape-short .tb-card img { width: 44px; height: 44px; }
+body.mobile-landscape-short .tb-slot { height: 72px; }
+body.mobile-landscape-short .tb-slot img { width: 38px; height: 38px; }
+body.mobile-landscape-short .op-mine { display: none; }
+body.mobile-landscape-short .op-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+body.mobile-landscape-short .op-card { padding: 4px; }
+body.mobile-landscape-short .op-sprite { width: 44px; height: 44px; }
+body.mobile-landscape-short .op-name { font-size: 8px; }
+body.mobile-landscape-short .op-team img { width: 24px; height: 24px; }
+
+body.mobile-landscape-short #textbox,
+body.mobile-landscape-short #moveMenu,
+body.mobile-landscape-short #actionMenu,
+body.mobile-landscape-short #yesno {
+  top: calc(var(--logic-vh, 720px) - 112px);
+  height: 96px;
+}
+body.mobile-landscape-short #textbox { font-size: 16px; padding: 10px 14px; }
+body.mobile-landscape-short #moveMenu .moves { font-size: 14px; }
+body.mobile-landscape-short #actionMenu { font-size: 16px; padding: 8px; }
+body.mobile-landscape-short #playerBox { top: 380px; transform: scale(0.92); transform-origin: top left; }
+body.mobile-landscape-short #foeBox { transform: scale(0.9); transform-origin: top left; }
+
+body.mobile-landscape-scroll {
+  -webkit-overflow-scrolling: touch;
+}

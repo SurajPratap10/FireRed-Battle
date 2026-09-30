@@ -57,16 +57,47 @@ const UI = (() => {
     const vw = vv ? vv.width : window.innerWidth, vh = vv ? vv.height : window.innerHeight;
     const portrait = vh > vw * 1.02;
     const mobile = window.matchMedia('(pointer: coarse)').matches || vw < 960;
-    const landscape = !portrait;
+    const landscape = mobile && !portrait;
+    const logicH = landscape ? Math.min(720, Math.floor((vh * 1280) / vw)) : 720;
     let s = Math.min(vw / 1280, vh / 720);
-    if (mobile && landscape) {
-      const fillW = vw / 1280;
-      if (720 * fillW <= vh * 0.99) s = fillW;
+    const root = document.documentElement;
+
+    el.stage.style.width = '1280px';
+    el.stage.style.height = '720px';
+    el.stage.style.transformOrigin = 'center center';
+    el.stage.style.top = '50%';
+    root.style.overflowY = '';
+    document.body.style.overflowY = '';
+    document.body.style.minHeight = '';
+
+    if (landscape) {
+      s = vw / 1280;
+      const scaledH = 720 * s;
+      root.style.setProperty('--logic-vh', `${logicH}px`);
+      root.style.setProperty('--stage-scale', String(s));
+
+      if (scaledH > vh + 2) {
+        el.stage.style.top = 'max(0px, env(safe-area-inset-top, 0px))';
+        el.stage.style.transformOrigin = 'top center';
+        el.stage.style.transform = `translateX(-50%) scale(${s})`;
+        root.style.overflowY = 'auto';
+        document.body.style.overflowY = 'auto';
+        document.body.style.minHeight = `${scaledH}px`;
+      } else {
+        el.stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+      }
+    } else {
+      root.style.removeProperty('--logic-vh');
+      root.style.removeProperty('--stage-scale');
+      el.stage.style.transform = `translate(-50%, -50%) scale(${s})`;
     }
-    el.stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+
     document.body.classList.toggle('portrait-ui', portrait);
     document.body.classList.toggle('mobile-ui', mobile);
-    document.body.classList.toggle('mobile-landscape', mobile && landscape);
+    document.body.classList.toggle('mobile-landscape', landscape);
+    document.body.classList.toggle('mobile-landscape-fill', landscape);
+    document.body.classList.toggle('mobile-landscape-short', landscape && logicH < 680);
+    document.body.classList.toggle('mobile-landscape-scroll', landscape && 720 * (vw / 1280) > vh + 2);
     document.body.classList.toggle('narrow-ui', mobile || vw < 900 || vh < 760 || portrait);
   }
 
