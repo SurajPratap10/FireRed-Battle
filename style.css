@@ -507,6 +507,24 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 .res-btn2 { font-size: 14px; padding: 14px 18px; border-radius: 8px; cursor: pointer; background: #34465e; border: 3px solid #5a6a8a; }
 .res-btn2.sel { border-color: #ffd84a; background: #f08030; }
 
+.btn.rand-mode {
+  border-color: #ffd84a; color: #fff8d0;
+  background: linear-gradient(#6a5020, #3a2808);
+  box-shadow: 0 0 12px rgba(255, 200, 60, 0.35);
+}
+.btn.rand-mode:hover { filter: brightness(1.12); }
+
+.rand-roll { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 8px 16px; max-width: 920px; }
+.rand-title { font-size: 22px; color: #ffd84a; text-shadow: 3px 3px 0 #111a26; }
+.rand-sub { font-size: 10px; color: #9fb4d8; margin-bottom: 4px; }
+.rand-block { text-align: center; width: 100%; }
+.rand-label { font-size: 11px; color: #ffe08a; margin-bottom: 8px; }
+.rand-sprites { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.rand-sprites img { width: 56px; height: 56px; object-fit: contain; image-rendering: pixelated; background: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 4px; }
+.rand-vs { font-size: 28px; color: #f08030; text-shadow: 2px 2px 0 #000; margin: 4px 0; }
+.rand-trainer { width: 88px; height: 88px; image-rendering: pixelated; margin-bottom: 6px; }
+.rand-go { margin-top: 8px; }
+
 /* ---------------- mobile / narrow viewport (DevTools + phones) ---------------- */
 body.narrow-ui #builder,
 body.narrow-ui #opponents { padding: 8px 10px; gap: 6px; }

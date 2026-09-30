@@ -18,6 +18,62 @@ const BattleMode = (() => {
   const typeBadges = (types) => types.map(t => `<span class="type" style="background:${TYPE_COLORS[t]}">${t}</span>`).join('');
   const hideAll = () => ['builder', 'opponents', 'bmresult'].forEach(id => { $$(id).classList.add('hidden'); $$(id).innerHTML = ''; });
 
+  function pickRandomTeam() {
+    team = [];
+    while (team.length < 6) {
+      const k = DEX_ORDER[randInt(0, DEX_ORDER.length - 1)];
+      if (!team.includes(k)) team.push(k);
+    }
+    focus = team[0];
+  }
+
+  function pickRandomOpponent() {
+    chosen = TRAINERS[randInt(0, TRAINERS.length - 1)].id;
+  }
+
+  function showRandomRoll() {
+    const t = TRAINERS.find(x => x.id === chosen);
+    return new Promise((res) => {
+      hideAll();
+      const root = $$('bmresult');
+      root.innerHTML = `
+        <div class="rand-roll">
+          <div class="rand-title">⚡ RANDOM MODE</div>
+          <div class="rand-sub">Any Gen · Any Type · Any Trainer</div>
+          <div class="rand-block">
+            <div class="rand-label">YOUR TEAM</div>
+            <div class="rand-sprites">${team.map(k => `<img src="${spritePathFor(DEX[k])}" title="${DEX[k].name}">`).join('')}</div>
+          </div>
+          <div class="rand-vs">VS</div>
+          <div class="rand-block foe">
+            <div class="rand-label">${t.title} ${t.name}</div>
+            <img class="rand-trainer" src="assets/trainers/${t.sprite}.png" alt="">
+            <div class="rand-sprites">${t.team.map(k => `<img src="${spritePathFor(DEX[k])}">`).join('')}</div>
+          </div>
+          <div class="rand-go btn go big" id="randGo">BATTLE! ▶</div>
+        </div>`;
+      root.classList.remove('hidden');
+      let done = false;
+      const go = () => {
+        if (done) return;
+        done = true;
+        Input.clear(); SFX.play('select'); root.classList.add('hidden'); res();
+      };
+      $$('randGo').onclick = go;
+      Input.set((k) => { if (k === 'A') go(); });
+      const tmr = setTimeout(go, 2800);
+      root.querySelector('.rand-roll').addEventListener('click', () => { clearTimeout(tmr); go(); }, { once: true });
+    });
+  }
+
+  async function startRandomMode() {
+    pickRandomTeam();
+    pickRandomOpponent();
+    persist();
+    await showRandomRoll();
+    await startBattle();
+  }
+
   // ---------------- team builder ----------------
   function filtered() {
     const q = search.trim().toUpperCase();
@@ -86,7 +142,7 @@ const BattleMode = (() => {
     const root = $$('builder');
     root.innerHTML = `
       <div class="bm-head"><div class="bm-title">BATTLE MODE · BUILD YOUR TEAM</div>
-        <div class="bm-btns"><div class="btn" id="tbRandom">RANDOM</div><div class="btn" id="tbClear">CLEAR</div><div class="btn go" id="tbNext">NEXT ▶</div></div></div>
+        <div class="bm-btns"><div class="btn rand-mode" id="tbRandMode">⚡ RANDOM MODE</div><div class="btn" id="tbRandom">RANDOM TEAM</div><div class="btn" id="tbClear">CLEAR</div><div class="btn go" id="tbNext">NEXT ▶</div></div></div>
       <div class="tb-body">
         <div class="tb-left">
           <div class="tb-filters">
@@ -111,6 +167,7 @@ const BattleMode = (() => {
     });
     $$('tbSearch').oninput = (e) => { search = e.target.value; renderGrid(); };
     $$('tbType').onchange = (e) => { typeFilter = e.target.value; renderGrid(); };
+    $$('tbRandMode').onclick = () => { SFX.play('select'); startRandomMode(); };
     $$('tbRandom').onclick = () => {
       const pool = DEX_ORDER.filter(k => DEX[k].base.reduce((a, b) => a + b) >= 480);
       team = [];
@@ -158,7 +215,7 @@ const BattleMode = (() => {
     const done = TRAINERS.filter(t => beaten.has(t.id)).length;
     root.innerHTML = `
       <div class="bm-head"><div class="bm-title">CHOOSE YOUR OPPONENT <span class="bm-sub">${done}/${TRAINERS.length} BEATEN</span></div>
-        <div class="bm-btns"><div class="btn" id="opBack">◀ TEAM</div>
+        <div class="bm-btns"><div class="btn" id="opBack">◀ TEAM</div><div class="btn rand-mode" id="opRandMode">⚡ RANDOM MODE</div>
           <div class="lvl"><span>LEVEL</span><div class="tab ${level === 50 ? 'on' : ''}" data-l="50">50</div><div class="tab ${level === 100 ? 'on' : ''}" data-l="100">100</div></div></div></div>
       <div class="op-mine">${team.map(k => `<img src="${spritePathFor(DEX[k])}" title="${DEX[k].name}">`).join('')}</div>
       <div class="op-tabs" id="opTabs">${TRAINER_CATS.map(c => `<div class="tab ${c === 'LEGENDS' ? 'legtab' : ''}" data-c="${c}">${c}</div>`).join('')}</div>
@@ -166,6 +223,7 @@ const BattleMode = (() => {
       <div class="op-bar" id="opBar"></div>`;
     root.classList.remove('hidden');
     $$('opBack').onclick = () => { SFX.play('back'); openBuilder(); };
+    $$('opRandMode').onclick = () => { SFX.play('select'); startRandomMode(); };
     root.querySelectorAll('.lvl .tab').forEach(t => t.onclick = () => {
       level = +t.dataset.l; persist(); SFX.play('blip');
       root.querySelectorAll('.lvl .tab').forEach(x => x.classList.toggle('on', x === t));
@@ -200,7 +258,12 @@ const BattleMode = (() => {
 
   function showResult(won, t) {
     const root = $$('bmresult');
-    const opts = [['REMATCH', () => startBattle()], ['NEW OPPONENT', () => openOpponents()], ['EDIT TEAM', () => openBuilder()]];
+    const opts = [
+      ['REMATCH', () => startBattle()],
+      ['RANDOM AGAIN', () => startRandomMode()],
+      ['NEW OPPONENT', () => openOpponents()],
+      ['EDIT TEAM', () => openBuilder()],
+    ];
     let c = 0;
     const draw = () => {
       root.innerHTML = `<div class="res-title ${won ? 'win' : 'lose'}">${won ? 'VICTORY!' : 'DEFEAT...'}</div>
