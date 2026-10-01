@@ -401,6 +401,9 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 .tab:hover { background: rgba(255, 255, 255, 0.16); }
 .tab.on { background: #d0b060; color: #1a2232; border-color: #ffe8a0; }
 .leg { color: #ffd84a; font-size: 10px; text-shadow: 0 0 8px rgba(255, 200, 60, 0.8); }
+.mega { color: #e878f8; font-size: 10px; text-shadow: 0 0 8px rgba(200, 80, 255, 0.75); }
+.tb-card.mega { border-color: rgba(200, 80, 255, 0.45); background: linear-gradient(rgba(160, 60, 220, 0.12), rgba(255, 255, 255, 0.04)); }
+.tb-card.mega-lock { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.35); }
 
 #choice {
   position: absolute; z-index: 13; right: 30px; bottom: 124px; min-width: 300px; padding: 12px 10px; color: #333; font-size: 20px;
@@ -423,6 +426,10 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 .tb-left { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .tb-filters { display: flex; flex-direction: column; gap: 8px; }
 .tb-gens { display: flex; gap: 6px; flex-wrap: wrap; }
+.tb-gens .tab.megatab { border-color: rgba(200, 80, 255, 0.55); color: #e878f8; }
+.tb-gens .tab.megatab.on { background: linear-gradient(#e878f8, #9040c0); color: #fff; border-color: #e878f8; }
+.tb-hint { font-size: 9px; color: #b8c8e8; line-height: 1.35; }
+.tb-hint b { color: #e878f8; }
 .tb-row { display: flex; gap: 10px; align-items: center; }
 #tbSearch, #tbType {
   font-family: inherit; font-size: 12px; padding: 9px 12px; border-radius: 6px; border: 2px solid #5a6a8a; background: #1c2840; color: #fff; outline: none;

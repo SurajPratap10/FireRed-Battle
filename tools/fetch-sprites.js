@@ -1,4 +1,4 @@
-// Downloads front/back battle sprites for all 809 Pokémon and trainer sprites from Pokémon Showdown.
+// Downloads front/back battle sprites for dex entries and trainer sprites from Pokémon Showdown.
 // Usage: node tools/fetch-sprites.js   (needs curl + network)
 const fs = require('fs');
 const path = require('path');
@@ -11,6 +11,14 @@ vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(root, 'js/dex.js'), 'utf8') + ';this.DEX=DEX;', ctx);
 vm.runInContext(fs.readFileSync(path.join(root, 'js/trainers.js'), 'utf8') + ';this.TRAINERS=TRAINERS;', ctx);
 const toID = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+const showdownSlug = (key, d) => {
+  const k = key.toLowerCase();
+  if (!d.mega) return k;
+  if (k.endsWith('megax')) return `${k.slice(0, -5)}-mega-x`;
+  if (k.endsWith('megay')) return `${k.slice(0, -5)}-mega-y`;
+  if (k.endsWith('mega')) return `${k.slice(0, -4)}-mega`;
+  return k;
+};
 const S = 'https://play.pokemonshowdown.com/sprites';
 const jobs = [];
 const sprDir = path.join(root, 'assets/sprites');
@@ -18,13 +26,13 @@ const trDir = path.join(root, 'assets/trainers');
 fs.mkdirSync(sprDir, { recursive: true });
 
 for (const [key, d] of Object.entries(ctx.DEX)) {
-  const id = key.toLowerCase();
+  const slug = showdownSlug(key, d);
   if (d.spr === 'png') {
-    jobs.push([`${S}/gen5/${id}.png`, path.join(sprDir, `${d.id}.png`)]);
-    jobs.push([`${S}/gen5-back/${id}.png`, path.join(sprDir, `${d.id}_back.png`)]);
+    jobs.push([`${S}/gen5/${slug}.png`, path.join(sprDir, `${d.id}.png`)]);
+    jobs.push([`${S}/gen5-back/${slug}.png`, path.join(sprDir, `${d.id}_back.png`)]);
   } else {
-    jobs.push([`${S}/gen5ani/${id}.gif`, path.join(sprDir, `${d.id}.gif`)]);
-    jobs.push([`${S}/gen5ani-back/${id}.gif`, path.join(sprDir, `${d.id}_back.gif`)]);
+    jobs.push([`${S}/gen5ani/${slug}.gif`, path.join(sprDir, `${d.id}.gif`)]);
+    jobs.push([`${S}/gen5ani-back/${slug}.gif`, path.join(sprDir, `${d.id}_back.gif`)]);
   }
 }
 for (const t of ctx.TRAINERS) if (t.sprite) jobs.push([`${S}/trainers/${t.sprite}.png`, path.join(trDir, `${t.sprite}.png`)]);

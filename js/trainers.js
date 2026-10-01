@@ -59,10 +59,10 @@ const TRAINERS = [
   { id: 'olympia', name: 'OLYMPIA', title: 'GYM LEADER', cat: 'KALOS', type: 'PSYCHIC', sprite: 'olympia', team: ['MEOWSTIC', 'SIGILYPH', 'SLOWKING', 'DELPHOX', 'GOTHITELLE', 'REUNICLUS'], quote: 'A ritual to decide your\nfate. The stars have spoken.' },
   { id: 'wulfric', name: 'WULFRIC', title: 'GYM LEADER', cat: 'KALOS', type: 'ICE', sprite: 'wulfric', team: ['AVALUGG', 'ABOMASNOW', 'CRYOGONAL', 'MAMOSWINE', 'WALREIN', 'BEARTIC'], quote: "Bring it on! I'll show you\nwhat an ICE wall looks like!" },
   // ---------------- ALOLA ----------------
-  { id: 'hala', name: 'HALA', title: 'KAHUNA', cat: 'ALOLA', type: 'FIGHTING', sprite: 'hala', team: ['HARIYAMA', 'CRABOMINABLE', 'PRIMEAPE', 'POLIWRATH', 'BEWEAR', 'HAWLUCHA'], quote: 'Ho ho! Let us see the\nstrength of your heart!' },
-  { id: 'olivia', name: 'OLIVIA', title: 'KAHUNA', cat: 'ALOLA', type: 'ROCK', sprite: 'olivia', team: ['LYCANROC', 'PROBOPASS', 'GOLEM', 'CARBINK', 'GIGALITH', 'TYRANITAR'], quote: 'Rocks are forever. Unlike\nmy love life. Let\'s battle!' },
+  { id: 'hala', name: 'HALA', title: 'KAHUNA', cat: 'ALOLA', type: 'FIGHTING', sprite: 'hala', team: ['HARIYAMA', 'CONKELDURR', 'PRIMEAPE', 'POLIWRATH', 'MIENSHAO', 'HAWLUCHA'], quote: 'Ho ho! Let us see the\nstrength of your heart!' },
+  { id: 'olivia', name: 'OLIVIA', title: 'KAHUNA', cat: 'ALOLA', type: 'ROCK', sprite: 'olivia', team: ['AERODACTYL', 'PROBOPASS', 'GOLEM', 'CARBINK', 'GIGALITH', 'TYRANITAR'], quote: 'Rocks are forever. Unlike\nmy love life. Let\'s battle!' },
   { id: 'nanu', name: 'NANU', title: 'KAHUNA', cat: 'ALOLA', type: 'DARK', sprite: 'nanu', team: ['PERSIAN', 'KROOKODILE', 'HONCHKROW', 'SABLEYE', 'ABSOL', 'WEAVILE'], quote: "Ugh... fine. Let's get\nthis over with, kid." },
-  { id: 'hapu', name: 'HAPU', title: 'KAHUNA', cat: 'ALOLA', type: 'GROUND', sprite: 'hapu', team: ['MUDSDALE', 'GOLURK', 'GASTRODON', 'FLYGON', 'PALOSSAND', 'GARCHOMP'], quote: 'The land of Poni is my\nstrength. Face it!' },
+  { id: 'hapu', name: 'HAPU', title: 'KAHUNA', cat: 'ALOLA', type: 'GROUND', sprite: 'hapu', team: ['CLAYDOL', 'GOLURK', 'GASTRODON', 'FLYGON', 'GLISCOR', 'GARCHOMP'], quote: 'The land of Poni is my\nstrength. Face it!' },
   // ---------------- CHAMPIONS ----------------
   { id: 'blue', name: 'BLUE', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'blue-gen3', team: ['PIDGEOT', 'ALAKAZAM', 'RHYPERIOR', 'GYARADOS', 'ARCANINE', 'EXEGGUTOR'], quote: "Hey! I was looking forward\nto seeing you, RED!" },
   { id: 'lance', name: 'LANCE', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'DRAGON', sprite: 'lance', team: ['GYARADOS', 'DRAGONITE', 'AERODACTYL', 'CHARIZARD', 'KINGDRA', 'SALAMENCE'], quote: 'I, LANCE the DRAGON master,\naccept your challenge!' },
@@ -76,6 +76,6 @@ const TRAINERS = [
   { id: 'sinnohlegends', name: 'CYRUS', title: 'BOSS', cat: 'LEGENDS', type: 'LEGEND', sprite: 'cyrus', team: ['DIALGA', 'PALKIA', 'GIRATINA', 'DARKRAI', 'HEATRAN', 'ARCEUS'], ev: 252, quote: 'Time and space are mine.\nA new world begins now.' },
   { id: 'unovalegends', name: 'N', title: 'KING', cat: 'LEGENDS', type: 'LEGEND', sprite: 'n', team: ['ZEKROM', 'RESHIRAM', 'KYUREM', 'VICTINI', 'LANDORUS', 'GENESECT'], ev: 252, quote: 'Truth and ideals, together.\nLet the POKéMON decide!' },
   { id: 'kaloslegends', name: 'LYSANDRE', title: 'BOSS', cat: 'LEGENDS', type: 'LEGEND', sprite: 'lysandre', team: ['YVELTAL', 'XERNEAS', 'ZYGARDE', 'DIANCIE', 'HOOPA', 'VOLCANION'], ev: 252, quote: 'Only the chosen may live\nin the beautiful world!' },
-  { id: 'alolalegends', name: 'LUSAMINE', title: 'PRESIDENT', cat: 'LEGENDS', type: 'LEGEND', sprite: 'lusamine', team: ['SOLGALEO', 'LUNALA', 'NECROZMA', 'TAPUKOKO', 'MARSHADOW', 'MAGEARNA'], ev: 252, quote: 'My beautiful beasts will\nlove you... to pieces!' },
+  { id: 'alolalegends', name: 'LUSAMINE', title: 'PRESIDENT', cat: 'LEGENDS', type: 'LEGEND', sprite: 'lusamine', team: ['GRENINJA', 'AEGISLASH', 'HAWLUCHA', 'GOODRA', 'TALONFLAME', 'NOIVERN'], ev: 252, quote: 'My beautiful beasts will\nlove you... to pieces!' },
   { id: 'godteam', name: 'GHETSIS', title: 'ULTIMATE', cat: 'LEGENDS', type: 'LEGEND', sprite: 'ghetsis', team: ['ARCEUS', 'MEWTWO', 'RAYQUAZA', 'KYOGRE', 'GROUDON', 'GIRATINA'], ev: 252, items: 5, quote: 'I am perfection! The strongest\nPOKéMON in existence obey me!' },
 ];

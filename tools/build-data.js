@@ -1,4 +1,4 @@
-// Builds js/dex.js (all 809 Gen 1-7 Pokémon, supported moves, learnsets, default sets) from tools/raw/*.
+// Builds js/dex.js (Gen 1–6 Pokémon + official Mega Evolutions, supported moves, learnsets, default sets) from tools/raw/*.
 // Raw sources: Pokémon Showdown pokedex/moves/learnsets, pkmn gen7 random battle sets, PokeAPI species CSVs.
 // Usage: node tools/build-data.js
 const fs = require('fs');
@@ -16,7 +16,17 @@ const csv = (f) => {
   return rows.map(r => Object.fromEntries(r.split(',').map((v, i) => [keys[i], v])));
 };
 const speciesCsv = new Map(csv('species.csv').map(r => [+r.id, r]));
-const pokemonCsv = new Map(csv('pokemon.csv').filter(r => r.is_default === '1').map(r => [+r.species_id, r]));
+const pokemonRows = csv('pokemon.csv');
+const pokemonCsv = new Map(pokemonRows.filter(r => r.is_default === '1').map(r => [+r.species_id, r]));
+const pokemonByName = new Map(pokemonRows.map(r => [r.identifier || r.name, r]));
+const MEGA_BASE = new Set(['Venusaur', 'Charizard', 'Blastoise', 'Beedrill', 'Pidgeot', 'Alakazam', 'Slowbro', 'Gengar', 'Kangaskhan', 'Pinsir', 'Gyarados', 'Aerodactyl', 'Mewtwo', 'Ampharos', 'Scizor', 'Heracross', 'Houndoom', 'Tyranitar', 'Sceptile', 'Blaziken', 'Swampert', 'Gardevoir', 'Gallade', 'Mawile', 'Aggron', 'Medicham', 'Manectric', 'Sharpedo', 'Camerupt', 'Altaria', 'Banette', 'Absol', 'Glalie', 'Salamence', 'Metagross', 'Latias', 'Latios', 'Garchomp', 'Lucario', 'Abomasnow', 'Audino', 'Diancie', 'Lopunny', 'Steelix', 'Sableye', 'Rayquaza']);
+const FAN_MEGA_SUFFIX = new Set(['absolmegaz', 'garchompmegaz', 'lucariomegaz']);
+const formCsvName = (key) => {
+  if (key.endsWith('megax')) return `${key.slice(0, -5)}-mega-x`;
+  if (key.endsWith('megay')) return `${key.slice(0, -5)}-mega-y`;
+  if (key.endsWith('mega')) return `${key.slice(0, -4)}-mega`;
+  return key;
+};
 const GROWTH = { 1: 'slow', 2: 'mf', 3: 'fast', 4: 'ms', 5: 'erratic', 6: 'fluct' };
 
 // ---------------- moves ----------------
@@ -301,25 +311,29 @@ const fallbackForType = (type) => Object.entries(MOVES).filter(([, m]) => m.type
   .sort((a, b) => b[1].power - a[1].power).map(([k]) => k)[0];
 
 const randIndex = new Map(Object.entries(randbats).map(([name, v]) => [toID(name), v]));
+const MAX_NAT = 721;
 const DEX = {};
-const bases = Object.entries(pokedex).filter(([, s]) => s.num >= 1 && s.num <= 809 && !s.forme);
-for (const [key, s] of bases) {
+
+function addSpecies(key, s, opts = {}) {
   const K = key.toUpperCase();
+  const num = opts.spriteId ?? s.num;
   const csvS = speciesCsv.get(s.num) || {};
-  const csvP = pokemonCsv.get(s.num) || {};
-  let name = s.name.toUpperCase().replace(/^NIDORAN-F$/, 'NIDORAN♀').replace(/^NIDORAN-M$/, 'NIDORAN♂');
+  const csvP = pokemonCsv.get(s.num) || pokemonByName.get(formCsvName(key)) || {};
+  let name = (opts.displayName || s.name).toUpperCase().replace(/^NIDORAN-F$/, 'NIDORAN♀').replace(/^NIDORAN-M$/, 'NIDORAN♂');
+  name = name.replace(/-MEGA-X$/, ' MEGA X').replace(/-MEGA-Y$/, ' MEGA Y').replace(/-MEGA$/, ' MEGA');
   const abil = Object.values(s.abilities).map(a => a.toUpperCase());
   const ability = abil.find(a => ABILITY_SUPPORT.has(a)) || abil[0];
   const base = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'].map(k => s.baseStats[k]);
   const genderRate = s.gender === 'N' ? -1 : s.gender === 'F' ? 8 : s.gender === 'M' ? 0 : s.genderRatio ? Math.round(s.genderRatio.F * 8) : 4;
   const entry = {
-    id: s.num, name, types: s.types.map(t => t.toUpperCase()), base, ability,
+    id: num, name, types: s.types.map(t => t.toUpperCase()), base, ability,
     growth: GROWTH[csvS.growth_rate_id] || 'ms', expYield: +csvP.base_experience || Math.round(base.reduce((a, b) => a + b) / 2.6),
-    catchRate: +csvS.capture_rate || 45, gen: +csvS.generation_id || 1, gender: genderRate,
+    catchRate: +csvS.capture_rate || 45, gen: opts.gen ?? (+csvS.generation_id || 1), gender: genderRate,
   };
   if (csvS.is_legendary === '1') entry.leg = 1;
   if (csvS.is_mythical === '1') entry.leg = 2;
-  if (s.num > 649) entry.spr = 'png';
+  if (num > 649 || opts.mega) entry.spr = 'png';
+  if (opts.mega) entry.mega = 1;
 
   const lv = levelUp(key);
   const all = [...learnable(key)].filter(id => MOVES[id]);
@@ -340,16 +354,27 @@ for (const [key, s] of bases) {
   entry.set = set;
   entry.lv = lv.length ? lv : [[1, set[0]]];
 
-  if (s.evos) {
+  if (!opts.mega && s.evos) {
     for (const evoName of s.evos) {
       const ek = toID(evoName), e = pokedex[ek];
-      if (!e || e.num > 809 || e.forme) continue;
+      if (!e || e.num > MAX_NAT || e.forme) continue;
       const lvl = e.evoLevel || (e.evoType === 'levelFriendship' ? 22 : e.evoType === 'trade' ? 36 : 32);
       entry.evo = [ek.toUpperCase(), lvl];
       break;
     }
   }
   DEX[K] = entry;
+}
+
+const bases = Object.entries(pokedex).filter(([, s]) => s.num >= 1 && s.num <= MAX_NAT && !s.forme);
+for (const [key, s] of bases) addSpecies(key, s);
+
+for (const [key, s] of Object.entries(pokedex)) {
+  if (!s.forme || !/^Mega/.test(s.forme) || FAN_MEGA_SUFFIX.has(key)) continue;
+  if (!MEGA_BASE.has(s.baseSpecies)) continue;
+  const csvRow = pokemonByName.get(formCsvName(key));
+  const spriteId = csvRow ? +csvRow.id : s.num;
+  addSpecies(key, s, { mega: true, gen: 6, spriteId, displayName: s.name });
 }
 
 // Moves actually referenced, to keep the payload small.
@@ -364,5 +389,5 @@ const out = `// Generated by tools/build-data.js — do not edit by hand.\n`
   + `const DEX_ORDER = Object.keys(DEX).sort((a, b) => DEX[a].id - DEX[b].id);\n`;
 fs.writeFileSync(path.join(__dirname, '..', 'js', 'dex.js'), out);
 console.log(`species=${Object.keys(DEX).length} moves=${Object.keys(OUT_MOVES).length} (supported total ${Object.keys(MOVES).length}) bytes=${out.length}`);
-for (const k of ['CHARIZARD', 'PIKACHU', 'GENGAR', 'DITTO', 'MAGIKARP', 'ARCEUS', 'DECIDUEYE', 'ZERAORA', 'EEVEE', 'SHEDINJA', 'UNOWN', 'WOBBUFFET', 'SMEARGLE'])
+for (const k of ['CHARIZARD', 'CHARIZARDMEGAX', 'PIKACHU', 'GENGAR', 'GENGARMEGA', 'ARCEUS', 'GRENINJA', 'EEVEE', 'MEWTWO', 'MEWTWOMEGAX'])
   console.log(k, DEX[k].set.join(','), DEX[k].ability, DEX[k].evo || '', DEX[k].lv.length);
