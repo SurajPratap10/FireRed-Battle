@@ -592,11 +592,17 @@ const UI = (() => {
       if (img) img.getAnimations().forEach(a => a.cancel());
     }
     showMon('foe', false); showMon('player', false);
-    for (const k of ['foeBox', 'playerBox', 'foeBalls', 'playerBalls', 'actionMenu', 'moveMenu', 'yesno', 'choice']) el[k].classList.add('hidden');
+    hideChrome();
     el.stage.querySelectorAll('.pokeball').forEach(b => b.remove());
     el.textbox.classList.remove('hidden');
     setText('');
     SFX.setLowHp(false);
+  }
+
+  function hideChrome() {
+    for (const k of ['foeBox', 'playerBox', 'foeBalls', 'playerBalls', 'actionMenu', 'moveMenu', 'yesno', 'choice', 'party', 'bag', 'summary', 'result', 'textbox']) {
+      if (el[k]) el[k].classList.add('hidden');
+    }
   }
 
   async function wildAppear(mon) {
@@ -680,7 +686,17 @@ const UI = (() => {
 
   // ------------- misc -------------
   function fade(toBlack, ms = 600) {
-    return el.fade.animate([{ opacity: toBlack ? 0 : 1 }, { opacity: toBlack ? 1 : 0 }], { duration: ms, fill: 'forwards' }).finished;
+    const to = toBlack ? 1 : 0;
+    const from = Number(getComputedStyle(el.fade).opacity);
+    el.fade.getAnimations().forEach(a => a.cancel());
+    if (ms <= 0 || from === to) {
+      el.fade.style.opacity = String(to);
+      return Promise.resolve();
+    }
+    el.fade.style.opacity = '';
+    return el.fade.animate([{ opacity: from }, { opacity: to }], { duration: ms, fill: 'forwards' }).finished.then(() => {
+      el.fade.style.opacity = String(to);
+    });
   }
 
   function trainerSlide(side, inward) {
@@ -710,7 +726,7 @@ const UI = (() => {
   }
 
   return {
-    prepareBattle, resetBattle, wildAppear, catchAnim, choice, genderHTML,
+    prepareBattle, resetBattle, hideChrome, wildAppear, catchAnim, choice, genderHTML,
     init, say, setText, sendOut, recall, faint, lunge, wiggle, hitBlink, renderBox, animateHP, setHpBar, setExpBar, animateExp,
     renderBalls, actionMenu, moveMenu, yesNo, partyScreen, subMenu, partyMessage, hideParty, summary, bagScreen, monCenter,
     showMon, fade, trainerSlide, title, showResult, toggleSound, updateStatusVisual, el,

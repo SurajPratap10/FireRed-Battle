@@ -401,8 +401,10 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 .tab:hover { background: rgba(255, 255, 255, 0.16); }
 .tab.on { background: #d0b060; color: #1a2232; border-color: #ffe8a0; }
 .leg { color: #ffd84a; font-size: 10px; text-shadow: 0 0 8px rgba(255, 200, 60, 0.8); }
+.myth { color: #70e0ff; font-size: 10px; text-shadow: 0 0 8px rgba(80, 200, 255, 0.8); }
 .mega { color: #e878f8; font-size: 10px; text-shadow: 0 0 8px rgba(200, 80, 255, 0.75); }
 .tb-card.mega { border-color: rgba(200, 80, 255, 0.45); background: linear-gradient(rgba(160, 60, 220, 0.12), rgba(255, 255, 255, 0.04)); }
+.tb-card.myth { border-color: rgba(80, 200, 255, 0.45); background: linear-gradient(rgba(40, 140, 200, 0.14), rgba(255, 255, 255, 0.04)); }
 .tb-card.mega-lock { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.35); }
 
 #choice {
@@ -415,7 +417,7 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 
 /* ================= battle mode ================= */
 #builder, #opponents {
-  position: absolute; inset: 0; z-index: 25; display: flex; flex-direction: column; padding: 16px 20px; gap: 12px;
+  position: absolute; inset: 0; z-index: 35; display: flex; flex-direction: column; padding: 16px 20px; gap: 12px;
   background: linear-gradient(rgba(12, 18, 32, 0.93), rgba(8, 12, 22, 0.97)), url('assets/arena_bg.png') center / cover;
 }
 .bm-head { padding-right: 76px; display: flex; align-items: center; justify-content: space-between; }
@@ -506,13 +508,19 @@ img.paralyzed { animation: parbuzz 2.4s steps(1) infinite; }
 .op-bar { height: 70px; display: flex; align-items: center; gap: 20px; padding: 0 16px; border-radius: 10px; background: #34465e; border: 3px solid #d0b060; }
 .op-quote { flex: 1; font-size: 11px; line-height: 20px; }
 #bmresult {
-  position: absolute; inset: 0; z-index: 25; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+  position: absolute; inset: 0; z-index: 35; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
   background: radial-gradient(ellipse at center, rgba(30, 40, 70, 0.7), rgba(0, 0, 0, 0.95)), url('assets/arena_bg.png') center / cover;
+  pointer-events: auto;
+}
+.res-home {
+  position: absolute; left: 20px; top: 16px;
+  font-size: 12px; padding: 10px 14px;
 }
 .res-trainer { width: 160px; height: 160px; image-rendering: pixelated; }
-.res-opts { display: flex; gap: 14px; margin-top: 10px; }
-.res-btn2 { font-size: 14px; padding: 14px 18px; border-radius: 8px; cursor: pointer; background: #34465e; border: 3px solid #5a6a8a; }
+.res-opts { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 10px; max-width: 920px; }
+.res-btn2 { font-size: 14px; padding: 16px 20px; border-radius: 8px; cursor: pointer; background: #34465e; border: 3px solid #5a6a8a; pointer-events: auto; }
 .res-btn2.sel { border-color: #ffd84a; background: #f08030; }
+.res-btn2:hover { filter: brightness(1.12); }
 
 .btn.rand-mode {
   border-color: #ffd84a; color: #fff8d0;
@@ -710,7 +718,8 @@ body.portrait-ui.mobile-ui .bm-btns { grid-template-columns: repeat(2, minmax(0,
 body.portrait-ui.mobile-ui .bm-btns .btn.go { grid-column: span 1; }
 
 body.mobile-ui .res-opts { flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 100%; }
-body.mobile-ui .res-btn2 { font-size: 9px; padding: 10px 8px; flex: 1 1 calc(50% - 8px); min-width: 120px; text-align: center; }
+body.mobile-ui .res-btn2 { font-size: 9px; padding: 12px 10px; flex: 1 1 calc(50% - 8px); min-width: 120px; text-align: center; }
+body.mobile-ui .res-home { left: 10px; top: 10px; font-size: 8px; padding: 8px 10px; }
 
 body.mobile-ui .rand-title { font-size: 16px; }
 body.mobile-ui .rand-sprites img { width: 44px; height: 44px; }

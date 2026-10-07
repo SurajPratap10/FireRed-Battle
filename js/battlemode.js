@@ -4,26 +4,40 @@ const BattleMode = (() => {
   const MAX_GEN = 6;
   const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
   const MEGA_TAB = ROMAN.length + 1; // tab index: 0=ALL, 1–6=GEN, 7=MEGA only
-  const MAX_MEGAS = 2;
+  const MAX_MEGAS = 1, MAX_LEGS = 2, MAX_MYTHS = 1;
   const pickable = (k) => { const d = DEX[k]; return d && (d.mega || d.gen <= MAX_GEN); };
-  const megaCount = (list = team) => list.filter(k => DEX[k]?.mega).length;
-  const canAdd = (k) => {
-    if (team.includes(k)) return true;
-    if (team.length >= 6) return false;
-    if (DEX[k]?.mega && megaCount() >= MAX_MEGAS) return false;
+  const isMega = (k) => !!DEX[k]?.mega;
+  const isLeg = (k) => DEX[k]?.leg === 1;
+  const isMyth = (k) => DEX[k]?.leg === 2;
+  const countOf = (pred, list = team) => list.filter(pred).length;
+  const megaCount = (list = team) => countOf(isMega, list);
+  const canAddTo = (k, list) => {
+    if (list.includes(k) || list.length >= 6 || !DEX[k]) return false;
+    if (isMega(k) && countOf(isMega, list) >= MAX_MEGAS) return false;
+    if (isLeg(k) && countOf(isLeg, list) >= MAX_LEGS) return false;
+    if (isMyth(k) && countOf(isMyth, list) >= MAX_MYTHS) return false;
     return true;
   };
-  const trimExtraMegas = () => {
-    while (megaCount() > MAX_MEGAS) {
-      const i = team.findIndex(k => DEX[k]?.mega);
-      if (i < 0) break;
-      team.splice(i, 1);
-    }
+  const canAdd = (k) => team.includes(k) || canAddTo(k, team);
+  const trimIllegal = (list) => {
+    const keep = [];
+    for (const k of list) if (canAddTo(k, keep)) keep.push(k);
+    return keep;
   };
+  const rollTeam = (size = 6, ok = pickable) => {
+    const pool = DEX_ORDER.filter(ok);
+    const out = [];
+    for (let n = 0; n < 5000 && out.length < size; n++) {
+      const k = pool[randInt(0, pool.length - 1)];
+      if (canAddTo(k, out)) out.push(k);
+    }
+    return out;
+  };
+  const strongPick = (k) => pickable(k) && DEX[k].base.reduce((a, b) => a + b) >= 480;
   const PLAYER_ITEMS = () => ({ 'HYPER POTION': 3, 'FULL RESTORE': 2, 'FULL HEAL': 3, 'REVIVE': 2, 'X ATTACK': 2, 'X SPECIAL': 2, 'X SPEED': 2 });
 
-  let team = JSON.parse(localStorage.getItem(TEAM_KEY) || '[]').filter(k => DEX[k]);
-  trimExtraMegas();
+  let team = trimIllegal(JSON.parse(localStorage.getItem(TEAM_KEY) || '[]').filter(k => DEX[k]));
+  let randomBattle = false, foeTeam = null;
   const beaten = new Set(JSON.parse(localStorage.getItem(BEAT_KEY) || '[]'));
   let level = +(localStorage.getItem(LV_KEY) || 100);
   let gen = 0, typeFilter = '', search = '', focus = team[0] || 'CHARIZARD', cat = 'KANTO', chosen = null;
@@ -32,27 +46,25 @@ const BattleMode = (() => {
     localStorage.setItem(BEAT_KEY, JSON.stringify([...beaten]));
     localStorage.setItem(LV_KEY, String(level));
   };
+  persist();
   const $$ = (id) => document.getElementById(id);
   const typeBadges = (types) => types.map(t => `<span class="type" style="background:${TYPE_COLORS[t]}">${t}</span>`).join('');
   const hideAll = () => ['builder', 'opponents', 'bmresult'].forEach(id => { $$(id).classList.add('hidden'); $$(id).innerHTML = ''; });
   const syncMegaHint = () => {
     const h = $$('tbHint');
     if (!h) return;
-    const mc = megaCount();
-    h.innerHTML = gen === MEGA_TAB
-      ? `<b>48 Mega Evolutions</b> — team limit <b>${mc}/${MAX_MEGAS}</b> megas.`
-      : `Megas: <b>MEGA</b> tab · max <b>${MAX_MEGAS}</b> per team (${mc}/${MAX_MEGAS} now).`;
+    const mc = megaCount(), lc = countOf(isLeg), yc = countOf(isMyth);
+    h.innerHTML = `Team limits: <b>MEGA ${mc}/${MAX_MEGAS}</b> · <span class="leg">LEG ${lc}/${MAX_LEGS}</span> · <span class="myth">MYTH ${yc}/${MAX_MYTHS}</span>`;
   };
 
   function pickRandomTeam() {
-    const pool = DEX_ORDER.filter(pickable);
-    team = [];
-    while (team.length < 6) {
-      const k = pool[randInt(0, pool.length - 1)];
-      if (team.includes(k) || !canAdd(k)) continue;
-      team.push(k);
-    }
-    focus = team[0];
+    team = rollTeam(6, pickable);
+    focus = team[0] || focus;
+  }
+
+  function leaveRandom() {
+    randomBattle = false;
+    foeTeam = null;
   }
 
   function pickRandomOpponent() {
@@ -67,7 +79,7 @@ const BattleMode = (() => {
       root.innerHTML = `
         <div class="rand-roll">
           <div class="rand-title">⚡ RANDOM MODE</div>
-          <div class="rand-sub">Any Gen · Any Type · Any Trainer</div>
+          <div class="rand-sub">Any Gen · Any Type · Randomized trainer teams</div>
           <div class="rand-block">
             <div class="rand-label">YOUR TEAM</div>
             <div class="rand-sprites">${team.map(k => `<img src="${spritePathFor(DEX[k])}" title="${DEX[k].name}">`).join('')}</div>
@@ -76,7 +88,7 @@ const BattleMode = (() => {
           <div class="rand-block foe">
             <div class="rand-label">${t.title} ${t.name}</div>
             <img class="rand-trainer" src="assets/trainers/${t.sprite}.png" alt="">
-            <div class="rand-sprites">${t.team.map(k => `<img src="${spritePathFor(DEX[k])}">`).join('')}</div>
+            <div class="rand-sprites">${(foeTeam || t.team).map(k => `<img src="${spritePathFor(DEX[k])}">`).join('')}</div>
           </div>
           <div class="rand-go btn go big" id="randGo">BATTLE! ▶</div>
         </div>`;
@@ -97,6 +109,9 @@ const BattleMode = (() => {
   async function startRandomMode() {
     pickRandomTeam();
     pickRandomOpponent();
+    const t = TRAINERS.find(x => x.id === chosen);
+    foeTeam = rollTeam(t?.team.length || 6, strongPick);
+    randomBattle = true;
     persist();
     await showRandomRoll();
     await startBattle();
@@ -121,7 +136,7 @@ const BattleMode = (() => {
     const labels = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
     const bst = d.base.reduce((a, b) => a + b, 0);
     return `<div class="bd-top"><img src="${spritePathFor(d)}"><div>
-        <div class="bd-name">#${String(d.id).padStart(d.id >= 10000 ? 5 : 3, '0')} ${d.name}${d.mega ? ' <span class="mega">⬡ MEGA</span>' : ''}${d.leg ? ' <span class="leg">★ LEGEND</span>' : ''}</div>
+        <div class="bd-name">#${String(d.id).padStart(d.id >= 10000 ? 5 : 3, '0')} ${d.name}${d.mega ? ' <span class="mega">⬡ MEGA</span>' : ''}${d.leg === 2 ? ' <span class="myth">✦ MYTHIC</span>' : d.leg ? ' <span class="leg">★ LEGEND</span>' : ''}</div>
         <div class="types">${typeBadges(d.types)}</div><div class="bd-ab">ABILITY: ${d.ability}</div></div></div>
       <div class="bd-stats">${d.base.map((v, i) => `<div class="bd-stat"><span>${labels[i]}</span><b>${v}</b><div class="bar"><div style="width:${Math.min(100, v / 1.8)}%;background:${v >= 110 ? '#40d080' : v >= 75 ? '#e8d040' : '#e87040'}"></div></div></div>`).join('')}
         <div class="bd-stat bst"><span>TOTAL</span><b>${bst}</b></div></div>
@@ -140,8 +155,7 @@ const BattleMode = (() => {
       n.onclick = () => { team.splice(+n.dataset.i, 1); SFX.play('back'); persist(); renderTeam(); renderGrid(); };
       n.onmouseenter = () => { focus = team[+n.dataset.i]; $$('tbDetail').innerHTML = detailHTML(focus); };
     });
-    const mc = megaCount();
-    $$('tbCount').textContent = `${team.length}/6 · MEGA ${mc}/${MAX_MEGAS}`;
+    $$('tbCount').textContent = `${team.length}/6 · MEGA ${megaCount()}/${MAX_MEGAS} · LEG ${countOf(isLeg)}/${MAX_LEGS} · MYTH ${countOf(isMyth)}/${MAX_MYTHS}`;
     $$('tbNext').classList.toggle('off', team.length === 0);
     syncMegaHint();
   }
@@ -149,11 +163,11 @@ const BattleMode = (() => {
   function renderGrid() {
     const list = filtered();
     const grid = $$('tbGrid');
-    const megaFull = megaCount() >= MAX_MEGAS;
     grid.innerHTML = list.map(k => {
       const d = DEX[k];
-      const locked = d.mega && megaFull && !team.includes(k);
-      return `<div class="tb-card ${team.includes(k) ? 'in' : ''} ${d.leg ? 'leg' : ''} ${d.mega ? 'mega' : ''} ${locked ? 'mega-lock' : ''}" data-k="${k}"><img loading="lazy" src="${spritePathFor(d)}"><div class="tb-num">${d.mega ? 'MEGA' : '#' + d.id}</div><div class="tb-name">${d.name}</div></div>`;
+      const locked = !team.includes(k) && !canAddTo(k, team);
+      const rare = d.leg === 2 ? 'myth' : d.leg ? 'leg' : '';
+      return `<div class="tb-card ${team.includes(k) ? 'in' : ''} ${rare} ${d.mega ? 'mega' : ''} ${locked ? 'mega-lock' : ''}" data-k="${k}"><img loading="lazy" src="${spritePathFor(d)}"><div class="tb-num">${d.mega ? 'MEGA' : '#' + d.id}</div><div class="tb-name">${d.name}</div></div>`;
     }).join('') || '<div class="tb-none">No POKéMON match.</div>';
     $$('tbFound').textContent = `${list.length} POKéMON`;
     grid.onclick = (e) => {
@@ -161,7 +175,7 @@ const BattleMode = (() => {
       const k = c.dataset.k;
       const i = team.indexOf(k);
       if (i >= 0) { team.splice(i, 1); SFX.play('back'); }
-      else if (!canAdd(k)) { SFX.play('error'); return; }
+      else if (!canAdd(k)) { SFX.play('error'); renderGrid(); return; }
       else { team.push(k); SFX.play('select'); SFX.cry(DEX[k].id); }
       persist(); renderTeam(); c.classList.toggle('in', team.includes(k));
     };
@@ -181,7 +195,7 @@ const BattleMode = (() => {
         <div class="tb-left">
           <div class="tb-filters">
             <div class="tb-gens">${['ALL', ...ROMAN, 'MEGA'].map((r, i) => `<div class="tab ${r === 'MEGA' ? 'megatab' : ''} ${i === gen ? 'on' : ''}" data-g="${i}">${i && r !== 'MEGA' ? 'GEN ' + r : r}</div>`).join('')}</div>
-            <div class="tb-hint" id="tbHint">Megas: tap <b>MEGA</b> tab — max <b>2</b> per team (like official battles).</div>
+            <div class="tb-hint" id="tbHint">Team limits: <b>MEGA 0/1</b> · <span class="leg">LEG 0/2</span> · <span class="myth">MYTH 0/1</span></div>
             <div class="tb-row"><input id="tbSearch" placeholder="SEARCH (e.g. MEGA, GENGAR MEGA)" value="${search}" autocomplete="off">
               <select id="tbType"><option value="">ALL TYPES</option>${TYPES.map(t => `<option ${t === typeFilter ? 'selected' : ''}>${t}</option>`).join('')}</select>
               <span id="tbFound"></span></div>
@@ -205,14 +219,10 @@ const BattleMode = (() => {
     $$('tbType').onchange = (e) => { typeFilter = e.target.value; renderGrid(); };
     $$('tbRandMode').onclick = () => { SFX.play('select'); startRandomMode(); };
     $$('tbRandom').onclick = () => {
-      const pool = DEX_ORDER.filter(k => pickable(k) && DEX[k].base.reduce((a, b) => a + b) >= 480);
-      team = [];
-      while (team.length < 6) {
-        const k = pool[randInt(0, pool.length - 1)];
-        if (!canAdd(k)) continue;
-        team.push(k);
-      }
+      team = rollTeam(6, strongPick);
+      focus = team[0] || focus;
       SFX.play('select'); persist(); renderTeam(); renderGrid();
+      if (focus) $$('tbDetail').innerHTML = detailHTML(focus);
     };
     $$('tbClear').onclick = () => { team = []; SFX.play('back'); persist(); renderTeam(); renderGrid(); };
     $$('tbNext').onclick = () => { if (!team.length) { SFX.play('error'); return; } SFX.play('select'); openOpponents(); };
@@ -236,7 +246,7 @@ const BattleMode = (() => {
     $$('opGrid').innerHTML = list.map(trainerCard).join('');
     $$('opGrid').querySelectorAll('.op-card').forEach(n => {
       n.onclick = () => { chosen = n.dataset.id; SFX.play('blip'); renderOpponents(); renderChosen(); };
-      n.ondblclick = () => { chosen = n.dataset.id; startBattle(); };
+      n.ondblclick = () => { chosen = n.dataset.id; leaveRandom(); startBattle(); };
     });
     $$('opTabs').querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.c === cat));
   }
@@ -246,7 +256,7 @@ const BattleMode = (() => {
     $$('opBar').innerHTML = t
       ? `<div class="op-quote"><b>${t.title} ${t.name}:</b> "${t.quote.replace('\n', ' ')}"${t.cat === 'LEGENDS' ? ' <span class="leg">OVERPOWERED</span>' : ''}</div><div class="btn go big" id="opFight">BATTLE! ▶</div>`
       : '<div class="op-quote">Pick an opponent. Beaten opponents get a ★.</div>';
-    if (t) $$('opFight').onclick = startBattle;
+    if (t) $$('opFight').onclick = () => { leaveRandom(); startBattle(); };
   }
 
   function openOpponents() {
@@ -270,7 +280,7 @@ const BattleMode = (() => {
     });
     $$('opTabs').querySelectorAll('.tab').forEach(t => t.onclick = () => { cat = t.dataset.c; SFX.play('blip'); renderOpponents(); });
     renderOpponents(); renderChosen();
-    Input.set((k) => { if (k === 'B') $$('opBack').onclick(); if (k === 'A' && chosen) startBattle(); });
+    Input.set((k) => { if (k === 'B') $$('opBack').onclick(); if (k === 'A' && chosen) { leaveRandom(); startBattle(); } });
   }
 
   // ---------------- battle ----------------
@@ -282,7 +292,8 @@ const BattleMode = (() => {
     await UI.fade(true, 400);
     hideAll();
     const party = team.map(k => new Mon({ species: k, level, set: true, ev: 85 }));
-    const foe = t.team.map(k => new Mon({ species: k, level, set: true, ev: t.ev || 85 }, 'foe'));
+    const roster = (randomBattle && foeTeam?.length) ? foeTeam : t.team;
+    const foe = roster.map(k => new Mon({ species: k, level, set: true, ev: t.ev || 85 }, 'foe'));
     const legend = t.cat === 'LEGENDS';
     const { result } = await Battle.run({
       player: { name: 'RED', party, items: PLAYER_ITEMS() },
@@ -298,27 +309,59 @@ const BattleMode = (() => {
 
   function showResult(won, t) {
     const root = $$('bmresult');
+    UI.hideChrome && UI.hideChrome();
     const opts = [
       ['REMATCH', () => startBattle()],
       ['RANDOM AGAIN', () => startRandomMode()],
-      ['NEW OPPONENT', () => openOpponents()],
-      ['EDIT TEAM', () => openBuilder()],
+      ['NEW OPPONENT', () => { leaveRandom(); openOpponents(); }],
+      ['EDIT TEAM', () => { leaveRandom(); openBuilder(); }],
     ];
     let c = 0;
-    const draw = () => {
-      root.innerHTML = `<div class="res-title ${won ? 'win' : 'lose'}">${won ? 'VICTORY!' : 'DEFEAT...'}</div>
+    let locked = false;
+    root.innerHTML = `<div class="res-home btn" id="resHome" role="button">◀ HOME</div>
+        <div class="res-title ${won ? 'win' : 'lose'}">${won ? 'VICTORY!' : 'DEFEAT...'}</div>
         <img class="res-trainer" src="assets/trainers/${t.sprite}.png">
         <div class="res-sub">${won ? `You defeated ${t.title} ${t.name}!` : `${t.title} ${t.name} was too strong...`}</div>
-        <div class="res-opts">${opts.map(([n], i) => `<div class="res-btn2 ${i === c ? 'sel' : ''}" data-i="${i}">${n}</div>`).join('')}</div>`;
-      root.querySelectorAll('.res-btn2').forEach(n => { n.onclick = () => go(+n.dataset.i); n.onmouseenter = () => { c = +n.dataset.i; draw(); }; });
+        <div class="res-opts">${opts.map(([n], i) => `<div class="res-btn2 ${i === c ? 'sel' : ''}" data-i="${i}" role="button">${n}</div>`).join('')}</div>`;
+    const paint = () => {
+      root.querySelectorAll('.res-btn2').forEach((n, i) => n.classList.toggle('sel', i === c));
     };
-    const go = (i) => { Input.clear(); SFX.play('select'); root.classList.add('hidden'); UI.fade(false, 300); opts[i][1](); };
-    draw();
+    const goHome = () => {
+      if (locked) return;
+      locked = true;
+      Input.clear();
+      SFX.play('back');
+      root.classList.add('hidden');
+      leaveRandom();
+      openBuilder();
+    };
+    const go = (i) => {
+      if (locked || i < 0 || i >= opts.length) return;
+      locked = true;
+      Input.clear();
+      SFX.play('select');
+      root.classList.add('hidden');
+      opts[i][1]();
+    };
+    root.onclick = (e) => {
+      if (e.target.closest('#resHome')) { goHome(); return; }
+      const btn = e.target.closest('.res-btn2');
+      if (btn) go(+btn.dataset.i);
+    };
+    root.onpointerover = (e) => {
+      const btn = e.target.closest('.res-btn2');
+      if (!btn) return;
+      const i = +btn.dataset.i;
+      if (i === c) return;
+      c = i;
+      paint();
+    };
     root.classList.remove('hidden');
     UI.fade(false, 400);
     Input.set((k) => {
-      if (k === 'L' || k === 'U') { c = (c + opts.length - 1) % opts.length; SFX.play('blip'); draw(); }
-      if (k === 'R' || k === 'D') { c = (c + 1) % opts.length; SFX.play('blip'); draw(); }
+      if (k === 'B') { goHome(); return; }
+      if (k === 'L' || k === 'U') { c = (c + opts.length - 1) % opts.length; SFX.play('blip'); paint(); }
+      if (k === 'R' || k === 'D') { c = (c + 1) % opts.length; SFX.play('blip'); paint(); }
       if (k === 'A') go(c);
     });
   }
