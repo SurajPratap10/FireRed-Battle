@@ -1,6 +1,6 @@
 // Battle Mode opponents. team = DEX keys; moves come from each species' default set (js/dex.js).
 // ev: effort values applied to every stat (the player uses 85). LEGENDS bosses are deliberately overtuned.
-const TRAINER_CATS = ['KANTO', 'JOHTO', 'HOENN', 'SINNOH', 'UNOVA', 'KALOS', 'ALOLA', 'CHAMPIONS', 'LEGENDS'];
+const TRAINER_CATS = ['KANTO', 'JOHTO', 'HOENN', 'SINNOH', 'UNOVA', 'KALOS', 'ALOLA', 'GALAR', 'PALDEA', 'CHAMPIONS', 'LEGENDS'];
 
 const TRAINERS = [
   // ---------------- KANTO ----------------
@@ -63,11 +63,36 @@ const TRAINERS = [
   { id: 'olivia', name: 'OLIVIA', title: 'KAHUNA', cat: 'ALOLA', type: 'ROCK', sprite: 'olivia', team: ['AERODACTYL', 'PROBOPASS', 'GOLEM', 'CARBINK', 'GIGALITH', 'TYRANITAR'], quote: 'Rocks are forever. Unlike\nmy love life. Let\'s battle!' },
   { id: 'nanu', name: 'NANU', title: 'KAHUNA', cat: 'ALOLA', type: 'DARK', sprite: 'nanu', team: ['PERSIAN', 'KROOKODILE', 'HONCHKROW', 'SABLEYE', 'ABSOL', 'WEAVILE'], quote: "Ugh... fine. Let's get\nthis over with, kid." },
   { id: 'hapu', name: 'HAPU', title: 'KAHUNA', cat: 'ALOLA', type: 'GROUND', sprite: 'hapu', team: ['CLAYDOL', 'GOLURK', 'GASTRODON', 'FLYGON', 'GLISCOR', 'GARCHOMP'], quote: 'The land of Poni is my\nstrength. Face it!' },
+  // ---------------- GALAR ----------------
+  { id: 'milo', name: 'MILO', title: 'GYM LEADER', cat: 'GALAR', type: 'GRASS', sprite: 'milo', team: ['ELDEGOSS', 'DUBWOOL', 'GOGOAT', 'SHIINOTIC', 'APPLETUN', 'RILLABOOM'], quote: "Grass POKéMON are gentle,\nbut they won't go easy on you!" },
+  { id: 'nessa', name: 'NESSA', title: 'GYM LEADER', cat: 'GALAR', type: 'WATER', sprite: 'nessa', team: ['GOLISOPOD', 'PELIPPER', 'DREDNAW', 'TOXICROAK', 'LUDICOLO', 'INTELEON'], quote: "The tide is turning.\nCan you ride the wave?" },
+  { id: 'kabu', name: 'KABU', title: 'GYM LEADER', cat: 'GALAR', type: 'FIRE', sprite: 'kabu', team: ['CENTISKORCH', 'DARMANITAN', 'NINETALES', 'COALOSSAL', 'CINDERACE', 'ARCANINE'], quote: 'Feel the heat of my\npassion for battle!' },
+  { id: 'bea', name: 'BEA', title: 'GYM LEADER', cat: 'GALAR', type: 'FIGHTING', sprite: 'bea', team: ['GRAPPLOCT', 'SIRFETCHD', 'MACHAMP', 'HAWLUCHA', 'LUCARIO', 'CONKELDURR'], quote: "I won't hold back.\nMy fists speak for me!" },
+  { id: 'allister', name: 'ALLISTER', title: 'GYM LEADER', cat: 'GALAR', type: 'GHOST', sprite: 'allister', team: ['MIMIKYU', 'CHANDELURE', 'COFAGRIGUS', 'POLTEAGEIST', 'GOLURK', 'GENGAR'], quote: '...Please battle me.\nMy POKéMON are shy too.' },
+  { id: 'opal', name: 'OPAL', title: 'GYM LEADER', cat: 'GALAR', type: 'FAIRY', sprite: 'opal', team: ['WEEZING', 'MRMIME', 'TOGEKISS', 'RAPIDASH', 'GRIMMSNARL', 'GARDEVOIR'], quote: "Welcome to my stage!\nLet's put on a show!" },
+  { id: 'gordie', name: 'GORDIE', title: 'GYM LEADER', cat: 'GALAR', type: 'ROCK', sprite: 'gordie', team: ['BARBARACLE', 'LYCANROC', 'DREDNAW', 'COALOSSAL', 'GOLEM', 'TYRANITAR'], quote: "Rocks don't break easy.\nNeither do I!" },
+  { id: 'melony', name: 'MELONY', title: 'GYM LEADER', cat: 'GALAR', type: 'ICE', sprite: 'melony', team: ['DARMANITAN', 'BEARTIC', 'FROSMOTH', 'EISCUE', 'MAMOSWINE', 'LAPRAS'], quote: 'Cool down and face my\nice-cold strategy.' },
+  { id: 'piers', name: 'PIERS', title: 'GYM LEADER', cat: 'GALAR', type: 'DARK', sprite: 'piers', team: ['SCRAFTY', 'MALAMAR', 'OBSTAGOON', 'SKUNTANK', 'TOXTRICITY', 'HONCHKROW'], quote: "Rock 'n' roll never dies.\nNeither will my team!" },
+  { id: 'raihan', name: 'RAIHAN', title: 'GYM LEADER', cat: 'GALAR', type: 'DRAGON', sprite: 'raihan', team: ['GOODRA', 'FLYGON', 'TURTONATOR', 'HAXORUS', 'DURALUDON', 'DRAGONITE'], quote: "Storms favor the bold.\nLet's thunder through!" },
+  // ---------------- PALDEA ----------------
+  { id: 'katy', name: 'KATY', title: 'GYM LEADER', cat: 'PALDEA', type: 'BUG', sprite: 'katy', team: ['LOKIX', 'TEDDIURSA', 'SPIDOPS', 'FORRETRESS', 'SCYTHER', 'HERACROSS'], quote: "Don't underestimate BUG\nPOKéMON — they're tough!" },
+  { id: 'brassius', name: 'BRASSIUS', title: 'GYM LEADER', cat: 'PALDEA', type: 'GRASS', sprite: 'brassius', team: ['SMOLIV', 'SHIINOTIC', 'BRELOOM', 'ROSELIA', 'LILLIGANT', 'VENUSAUR'], quote: 'Art and battle both need\nbalance. Observe closely.' },
+  { id: 'iono', name: 'IONO', title: 'GYM LEADER', cat: 'PALDEA', type: 'ELECTRIC', sprite: 'iono', team: ['BELLIBOLT', 'LUXRAY', 'PAWMOT', 'TOXTRICITY', 'AMPHAROS', 'RAICHU'], quote: "How shocking! You're my\nnext stream guest!" },
+  { id: 'kofu', name: 'KOFU', title: 'GYM LEADER', cat: 'PALDEA', type: 'WATER', sprite: 'kofu', team: ['CRABOMINABLE', 'QUAGSIRE', 'GASTRODON', 'TOXAPEX', 'WISHIWASHI', 'GYARADOS'], quote: 'Fresh ingredients, fresh\nstrategy — taste defeat!' },
+  { id: 'larry', name: 'LARRY', title: 'GYM LEADER', cat: 'PALDEA', type: 'NORMAL', sprite: 'larry', team: ['STARAPTOR', 'DODRIO', 'OINKOLOGNE', 'SNORLAX', 'SLAKING', 'PORYGONZ'], quote: "...Yeah. Let's get this\nover with. Battle time." },
+  { id: 'ryme', name: 'RYME', title: 'GYM LEADER', cat: 'PALDEA', type: 'GHOST', sprite: 'ryme', team: ['MISMAGIUS', 'HOUNDSTONE', 'COFAGRIGUS', 'CHANDELURE', 'GENGAR', 'BANETTE'], quote: "My rhymes hit hard — and\nso do my GHOST POKéMON!" },
+  { id: 'tulip', name: 'TULIP', title: 'GYM LEADER', cat: 'PALDEA', type: 'PSYCHIC', sprite: 'tulip', team: ['ESPATHRA', 'FLORGES', 'GARDEVOIR', 'ALCREMIE', 'RAPIDASH', 'GALLADE'], quote: 'Beauty and mind — my\nPSYCHIC team has both.' },
+  { id: 'grusha', name: 'GRUSHA', title: 'GYM LEADER', cat: 'PALDEA', type: 'ICE', sprite: 'grusha', team: ['FROSMOTH', 'BEARTIC', 'CETODDLE', 'ABOMASNOW', 'WEAVILE', 'GLACEON'], quote: "The mountain's cold.\nSo is my battle style." },
   // ---------------- CHAMPIONS ----------------
   { id: 'blue', name: 'BLUE', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'blue-gen3', team: ['PIDGEOT', 'ALAKAZAM', 'RHYPERIOR', 'GYARADOS', 'ARCANINE', 'EXEGGUTOR'], quote: "Hey! I was looking forward\nto seeing you, RED!" },
   { id: 'lance', name: 'LANCE', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'DRAGON', sprite: 'lance', team: ['GYARADOS', 'DRAGONITE', 'AERODACTYL', 'CHARIZARD', 'KINGDRA', 'SALAMENCE'], quote: 'I, LANCE the DRAGON master,\naccept your challenge!' },
   { id: 'steven', name: 'STEVEN', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'STEEL', sprite: 'steven', team: ['SKARMORY', 'CLAYDOL', 'AGGRON', 'CRADILY', 'ARMALDO', 'METAGROSS'], quote: 'Show me the power of\nyour bonds, as a TRAINER.' },
   { id: 'cynthia', name: 'CYNTHIA', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'cynthia', team: ['SPIRITOMB', 'ROSERADE', 'GASTRODON', 'LUCARIO', 'MILOTIC', 'GARCHOMP'], quote: 'I, CYNTHIA, accept your\nchallenge! No holding back!' },
+  { id: 'alder', name: 'ALDER', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'alder', team: ['VOLCARONA', 'BOUFFALANT', 'DRUDDIGON', 'BRAVIARY', 'CONKELDURR', 'HAXORUS'], quote: 'The road to strength is\nlong — walk it with me!' },
+  { id: 'diantha', name: 'DIANTHA', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'diantha', team: ['GOURGEIST', 'HAWLUCHA', 'GOODRA', 'GARDEVOIR', 'TYRANTRUM', 'MEOWSTIC'], quote: 'Every battle is a story.\nLet us write an epic!' },
+  { id: 'kukui', name: 'KUKUI', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'kukui', team: ['INCINEROAR', 'LUNALA', 'BRUXISH', 'MAGNEZONE', 'LURANTIS', 'MACHAMP'], quote: "Woo! Full-powered battle\nresearch starts NOW!" },
+  { id: 'leon', name: 'LEON', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'leon', team: ['RILLABOOM', 'CINDERACE', 'INTELEON', 'DRAGAPULT', 'AEGISLASH', 'CHARIZARD'], quote: "It's Leon time!\nGet ready to lose!" },
+  { id: 'geeta', name: 'GEETA', title: 'CHAMPION', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'geeta', team: ['GOODRA', 'GARGANACL', 'ESPATHRA', 'VELUZA', 'KINGAMBIT', 'AVALUGG'], quote: 'As TOP CHAIR, I expect\nnothing less than your best.' },
   { id: 'red', name: 'RED', title: 'LEGEND', cat: 'CHAMPIONS', type: 'MIXED', sprite: 'red-gen3', team: ['PIKACHU', 'ESPEON', 'SNORLAX', 'VENUSAUR', 'CHARIZARD', 'BLASTOISE'], quote: '...\n......!' },
   // ---------------- LEGENDS (overtuned boss teams) ----------------
   { id: 'kantolegends', name: 'GIOVANNI', title: 'BOSS', cat: 'LEGENDS', type: 'LEGEND', sprite: 'giovanni', team: ['MEWTWO', 'MEW', 'ARTICUNO', 'ZAPDOS', 'MOLTRES'], ev: 252, quote: 'MEWTWO is the ultimate weapon.\nYou will be crushed!' },
@@ -77,5 +102,7 @@ const TRAINERS = [
   { id: 'unovalegends', name: 'N', title: 'KING', cat: 'LEGENDS', type: 'LEGEND', sprite: 'n', team: ['ZEKROM', 'RESHIRAM', 'KYUREM', 'VICTINI', 'LANDORUS', 'GENESECT'], ev: 252, quote: 'Truth and ideals, together.\nLet the POKéMON decide!' },
   { id: 'kaloslegends', name: 'LYSANDRE', title: 'BOSS', cat: 'LEGENDS', type: 'LEGEND', sprite: 'lysandre', team: ['YVELTAL', 'XERNEAS', 'ZYGARDE', 'DIANCIE', 'HOOPA', 'VOLCANION'], ev: 252, quote: 'Only the chosen may live\nin the beautiful world!' },
   { id: 'alolalegends', name: 'LUSAMINE', title: 'PRESIDENT', cat: 'LEGENDS', type: 'LEGEND', sprite: 'lusamine', team: ['GRENINJA', 'AEGISLASH', 'HAWLUCHA', 'GOODRA', 'TALONFLAME', 'NOIVERN'], ev: 252, quote: 'My beautiful beasts will\nlove you... to pieces!' },
+  { id: 'galarlegends', name: 'ROSE', title: 'CHAIRMAN', cat: 'LEGENDS', type: 'LEGEND', sprite: 'rose', team: ['ZACIAN', 'ZAMAZENTA', 'ETERNATUS', 'CALYREX', 'REGIELEKI', 'REGIDRAGO'], ev: 252, quote: 'Galar will prosper — even\nif the world must change!' },
+  { id: 'paldealegends', name: 'PENNY', title: 'BOSS', cat: 'LEGENDS', type: 'LEGEND', sprite: 'penny', team: ['KORAIDON', 'MIRAIDON', 'WOCHIEN', 'CHIENPAO', 'TINGLU', 'CHIYU'], ev: 252, quote: 'The treasure I wanted...\nwas strength. Prove yours!' },
   { id: 'godteam', name: 'GHETSIS', title: 'ULTIMATE', cat: 'LEGENDS', type: 'LEGEND', sprite: 'ghetsis', team: ['ARCEUS', 'MEWTWO', 'RAYQUAZA', 'KYOGRE', 'GROUDON', 'GIRATINA'], ev: 252, items: 5, quote: 'I am perfection! The strongest\nPOKéMON in existence obey me!' },
 ];
