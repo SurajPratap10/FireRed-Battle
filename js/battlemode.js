@@ -1,11 +1,11 @@
-// Battle Mode: pick any 6 Gen I–VI POKéMON (incl. Mega Evolutions), then fight any GYM LEADER, CHAMPION or LEGENDARY boss.
+// Battle Mode: pick any 6 Gen I–IX POKéMON (incl. Mega Evolutions), then fight any GYM LEADER, CHAMPION or LEGENDARY boss.
 const BattleMode = (() => {
   const TEAM_KEY = 'pkfr_bm_team', BEAT_KEY = 'pkfr_bm_beaten', LV_KEY = 'pkfr_bm_level';
-  const MAX_GEN = 6;
-  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
-  const MEGA_TAB = ROMAN.length + 1; // tab index: 0=ALL, 1–6=GEN, 7=MEGA only
+  const MAX_GEN = 9;
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+  const MEGA_TAB = ROMAN.length + 1; // tab index: 0=ALL, 1–9=GEN, 10=MEGA only
   const MAX_MEGAS = 1, MAX_LEGS = 2, MAX_MYTHS = 1;
-  const pickable = (k) => { const d = DEX[k]; return d && (d.mega || d.gen <= MAX_GEN); };
+  const pickable = (k) => !!DEX[k];
   const isMega = (k) => !!DEX[k]?.mega;
   const isLeg = (k) => DEX[k]?.leg === 1;
   const isMyth = (k) => DEX[k]?.leg === 2;

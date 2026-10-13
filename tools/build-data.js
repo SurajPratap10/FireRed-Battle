@@ -1,4 +1,4 @@
-// Builds js/dex.js (Gen 1–6 Pokémon + official Mega Evolutions, supported moves, learnsets, default sets) from tools/raw/*.
+// Builds js/dex.js (Gen 1–9 Pokémon + official Mega Evolutions, supported moves, learnsets, default sets) from tools/raw/*.
 // Raw sources: Pokémon Showdown pokedex/moves/learnsets, pkmn gen7 random battle sets, PokeAPI species CSVs.
 // Usage: node tools/build-data.js
 const fs = require('fs');
@@ -311,7 +311,7 @@ const fallbackForType = (type) => Object.entries(MOVES).filter(([, m]) => m.type
   .sort((a, b) => b[1].power - a[1].power).map(([k]) => k)[0];
 
 const randIndex = new Map(Object.entries(randbats).map(([name, v]) => [toID(name), v]));
-const MAX_NAT = 721;
+const MAX_NAT = 1025; // National Dex through Gen IX (Paldea)
 const DEX = {};
 
 function addSpecies(key, s, opts = {}) {

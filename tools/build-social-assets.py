@@ -150,7 +150,7 @@ def build_og() -> Image.Image:
     draw = ImageDraw.Draw(canvas)
     draw_arena_text(draw, OG_SIZE[0] // 2, 72 + lh + 58, "BATTLE ARENA", 56)
 
-    tags = "721+ MEGA  ·  GYM LEADERS  ·  LEGENDARY BOSSES"
+    tags = "GEN I–IX  ·  GYM LEADERS  ·  LEGENDARY BOSSES"
     try:
         tfont = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 22)
     except OSError:
