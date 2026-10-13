@@ -1,19 +1,23 @@
-// Battle Mode: pick any 6 Gen I–IX POKéMON (incl. Mega Evolutions), then fight any GYM LEADER, CHAMPION or LEGENDARY boss.
+// Battle Mode: pick any 6 Gen I–IX POKéMON (incl. Mega + Gigantamax), then fight any GYM LEADER, CHAMPION or LEGENDARY boss.
 const BattleMode = (() => {
   const TEAM_KEY = 'pkfr_bm_team', BEAT_KEY = 'pkfr_bm_beaten', LV_KEY = 'pkfr_bm_level';
   const MAX_GEN = 9;
   const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
-  const MEGA_TAB = ROMAN.length + 1; // tab index: 0=ALL, 1–9=GEN, 10=MEGA only
-  const MAX_MEGAS = 1, MAX_LEGS = 2, MAX_MYTHS = 1;
+  const MEGA_TAB = ROMAN.length + 1; // 0=ALL, 1–9=GEN, 10=MEGA, 11=G-MAX
+  const GMAX_TAB = MEGA_TAB + 1;
+  const MAX_MEGAS = 1, MAX_GMAX = 1, MAX_LEGS = 2, MAX_MYTHS = 1;
   const pickable = (k) => !!DEX[k];
   const isMega = (k) => !!DEX[k]?.mega;
+  const isGmax = (k) => !!DEX[k]?.gmax;
   const isLeg = (k) => DEX[k]?.leg === 1;
   const isMyth = (k) => DEX[k]?.leg === 2;
   const countOf = (pred, list = team) => list.filter(pred).length;
   const megaCount = (list = team) => countOf(isMega, list);
+  const gmaxCount = (list = team) => countOf(isGmax, list);
   const canAddTo = (k, list) => {
     if (list.includes(k) || list.length >= 6 || !DEX[k]) return false;
     if (isMega(k) && countOf(isMega, list) >= MAX_MEGAS) return false;
+    if (isGmax(k) && countOf(isGmax, list) >= MAX_GMAX) return false;
     if (isLeg(k) && countOf(isLeg, list) >= MAX_LEGS) return false;
     if (isMyth(k) && countOf(isMyth, list) >= MAX_MYTHS) return false;
     return true;
@@ -50,11 +54,11 @@ const BattleMode = (() => {
   const $$ = (id) => document.getElementById(id);
   const typeBadges = (types) => types.map(t => `<span class="type" style="background:${TYPE_COLORS[t]}">${t}</span>`).join('');
   const hideAll = () => ['builder', 'opponents', 'bmresult'].forEach(id => { $$(id).classList.add('hidden'); $$(id).innerHTML = ''; });
-  const syncMegaHint = () => {
+  const syncTeamHint = () => {
     const h = $$('tbHint');
     if (!h) return;
-    const mc = megaCount(), lc = countOf(isLeg), yc = countOf(isMyth);
-    h.innerHTML = `Team limits: <b>MEGA ${mc}/${MAX_MEGAS}</b> · <span class="leg">LEG ${lc}/${MAX_LEGS}</span> · <span class="myth">MYTH ${yc}/${MAX_MYTHS}</span>`;
+    const mc = megaCount(), gc = gmaxCount(), lc = countOf(isLeg), yc = countOf(isMyth);
+    h.innerHTML = `Team limits: <b>MEGA ${mc}/${MAX_MEGAS}</b> · <b class="gmax">G-MAX ${gc}/${MAX_GMAX}</b> · <span class="leg">LEG ${lc}/${MAX_LEGS}</span> · <span class="myth">MYTH ${yc}/${MAX_MYTHS}</span>`;
   };
 
   function pickRandomTeam() {
@@ -124,9 +128,10 @@ const BattleMode = (() => {
       if (!pickable(k)) return false;
       const d = DEX[k];
       if (gen === MEGA_TAB) { if (!d.mega) return false; }
+      else if (gen === GMAX_TAB) { if (!d.gmax) return false; }
       else if (gen && d.gen !== gen) return false;
       if (typeFilter && !d.types.includes(typeFilter)) return false;
-      if (q && !d.name.includes(q) && String(d.id) !== q && !(d.mega && q.includes('MEGA'))) return false;
+      if (q && !d.name.includes(q) && String(d.id) !== q && !(d.mega && q.includes('MEGA')) && !(d.gmax && (q.includes('GMAX') || q.includes('G-MAX')))) return false;
       return true;
     });
   }
@@ -136,7 +141,7 @@ const BattleMode = (() => {
     const labels = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
     const bst = d.base.reduce((a, b) => a + b, 0);
     return `<div class="bd-top"><img src="${spritePathFor(d)}"><div>
-        <div class="bd-name">#${String(d.id).padStart(d.id >= 10000 ? 5 : 3, '0')} ${d.name}${d.mega ? ' <span class="mega">⬡ MEGA</span>' : ''}${d.leg === 2 ? ' <span class="myth">✦ MYTHIC</span>' : d.leg ? ' <span class="leg">★ LEGEND</span>' : ''}</div>
+        <div class="bd-name">#${String(d.id).padStart(d.id >= 10000 ? 5 : 3, '0')} ${d.name}${d.mega ? ' <span class="mega">⬡ MEGA</span>' : ''}${d.gmax ? ' <span class="gmax">☁ G-MAX</span>' : ''}${d.leg === 2 ? ' <span class="myth">✦ MYTHIC</span>' : d.leg ? ' <span class="leg">★ LEGEND</span>' : ''}</div>
         <div class="types">${typeBadges(d.types)}</div><div class="bd-ab">ABILITY: ${d.ability}</div></div></div>
       <div class="bd-stats">${d.base.map((v, i) => `<div class="bd-stat"><span>${labels[i]}</span><b>${v}</b><div class="bar"><div style="width:${Math.min(100, v / 1.8)}%;background:${v >= 110 ? '#40d080' : v >= 75 ? '#e8d040' : '#e87040'}"></div></div></div>`).join('')}
         <div class="bd-stat bst"><span>TOTAL</span><b>${bst}</b></div></div>
@@ -155,9 +160,9 @@ const BattleMode = (() => {
       n.onclick = () => { team.splice(+n.dataset.i, 1); SFX.play('back'); persist(); renderTeam(); renderGrid(); };
       n.onmouseenter = () => { focus = team[+n.dataset.i]; $$('tbDetail').innerHTML = detailHTML(focus); };
     });
-    $$('tbCount').textContent = `${team.length}/6 · MEGA ${megaCount()}/${MAX_MEGAS} · LEG ${countOf(isLeg)}/${MAX_LEGS} · MYTH ${countOf(isMyth)}/${MAX_MYTHS}`;
+    $$('tbCount').textContent = `${team.length}/6 · MEGA ${megaCount()}/${MAX_MEGAS} · G-MAX ${gmaxCount()}/${MAX_GMAX} · LEG ${countOf(isLeg)}/${MAX_LEGS} · MYTH ${countOf(isMyth)}/${MAX_MYTHS}`;
     $$('tbNext').classList.toggle('off', team.length === 0);
-    syncMegaHint();
+    syncTeamHint();
   }
 
   function renderGrid() {
@@ -167,7 +172,8 @@ const BattleMode = (() => {
       const d = DEX[k];
       const locked = !team.includes(k) && !canAddTo(k, team);
       const rare = d.leg === 2 ? 'myth' : d.leg ? 'leg' : '';
-      return `<div class="tb-card ${team.includes(k) ? 'in' : ''} ${rare} ${d.mega ? 'mega' : ''} ${locked ? 'mega-lock' : ''}" data-k="${k}"><img loading="lazy" src="${spritePathFor(d)}"><div class="tb-num">${d.mega ? 'MEGA' : '#' + d.id}</div><div class="tb-name">${d.name}</div></div>`;
+      const tag = d.mega ? 'MEGA' : d.gmax ? 'G-MAX' : '#' + d.id;
+      return `<div class="tb-card ${team.includes(k) ? 'in' : ''} ${rare} ${d.mega ? 'mega' : ''} ${d.gmax ? 'gmax' : ''} ${locked ? 'mega-lock' : ''}" data-k="${k}"><img loading="lazy" src="${spritePathFor(d)}"><div class="tb-num">${tag}</div><div class="tb-name">${d.name}</div></div>`;
     }).join('') || '<div class="tb-none">No POKéMON match.</div>';
     $$('tbFound').textContent = `${list.length} POKéMON`;
     grid.onclick = (e) => {
@@ -194,9 +200,13 @@ const BattleMode = (() => {
       <div class="tb-body">
         <div class="tb-left">
           <div class="tb-filters">
-            <div class="tb-gens">${['ALL', ...ROMAN, 'MEGA'].map((r, i) => `<div class="tab ${r === 'MEGA' ? 'megatab' : ''} ${i === gen ? 'on' : ''}" data-g="${i}">${i && r !== 'MEGA' ? 'GEN ' + r : r}</div>`).join('')}</div>
-            <div class="tb-hint" id="tbHint">Team limits: <b>MEGA 0/1</b> · <span class="leg">LEG 0/2</span> · <span class="myth">MYTH 0/1</span></div>
-            <div class="tb-row"><input id="tbSearch" placeholder="SEARCH (e.g. MEGA, GENGAR MEGA)" value="${search}" autocomplete="off">
+            <div class="tb-gens">${['ALL', ...ROMAN, 'MEGA', 'G-MAX'].map((r, i) => {
+              const cls = r === 'MEGA' ? 'megatab' : r === 'G-MAX' ? 'gmaxtab' : '';
+              const label = !i || r === 'MEGA' || r === 'G-MAX' ? r : 'GEN ' + r;
+              return `<div class="tab ${cls} ${i === gen ? 'on' : ''}" data-g="${i}">${label}</div>`;
+            }).join('')}</div>
+            <div class="tb-hint" id="tbHint">Team limits: <b>MEGA 0/1</b> · <b class="gmax">G-MAX 0/1</b> · <span class="leg">LEG 0/2</span> · <span class="myth">MYTH 0/1</span></div>
+            <div class="tb-row"><input id="tbSearch" placeholder="SEARCH (e.g. GMAX, GENGAR)" value="${search}" autocomplete="off">
               <select id="tbType"><option value="">ALL TYPES</option>${TYPES.map(t => `<option ${t === typeFilter ? 'selected' : ''}>${t}</option>`).join('')}</select>
               <span id="tbFound"></span></div>
           </div>
@@ -212,9 +222,9 @@ const BattleMode = (() => {
     root.querySelectorAll('.tb-gens .tab').forEach(t => t.onclick = () => {
       gen = +t.dataset.g; SFX.play('blip');
       root.querySelectorAll('.tb-gens .tab').forEach(x => x.classList.toggle('on', x === t));
-      syncMegaHint(); renderGrid(); $$('tbGrid').scrollTop = 0;
+      syncTeamHint(); renderGrid(); $$('tbGrid').scrollTop = 0;
     });
-    syncMegaHint();
+    syncTeamHint();
     $$('tbSearch').oninput = (e) => { search = e.target.value; renderGrid(); };
     $$('tbType').onchange = (e) => { typeFilter = e.target.value; renderGrid(); };
     $$('tbRandMode').onclick = () => { SFX.play('select'); startRandomMode(); };

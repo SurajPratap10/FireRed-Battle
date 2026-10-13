@@ -1,4 +1,4 @@
-// Builds js/dex.js (Gen 1–9 Pokémon + official Mega Evolutions, supported moves, learnsets, default sets) from tools/raw/*.
+// Builds js/dex.js (Gen 1–9 Pokémon + Mega Evolutions + Gigantamax forms, supported moves, learnsets, default sets) from tools/raw/*.
 // Raw sources: Pokémon Showdown pokedex/moves/learnsets, pkmn gen7 random battle sets, PokeAPI species CSVs.
 // Usage: node tools/build-data.js
 const fs = require('fs');
@@ -21,12 +21,21 @@ const pokemonCsv = new Map(pokemonRows.filter(r => r.is_default === '1').map(r =
 const pokemonByName = new Map(pokemonRows.map(r => [r.identifier || r.name, r]));
 const MEGA_BASE = new Set(['Venusaur', 'Charizard', 'Blastoise', 'Beedrill', 'Pidgeot', 'Alakazam', 'Slowbro', 'Gengar', 'Kangaskhan', 'Pinsir', 'Gyarados', 'Aerodactyl', 'Mewtwo', 'Ampharos', 'Scizor', 'Heracross', 'Houndoom', 'Tyranitar', 'Sceptile', 'Blaziken', 'Swampert', 'Gardevoir', 'Gallade', 'Mawile', 'Aggron', 'Medicham', 'Manectric', 'Sharpedo', 'Camerupt', 'Altaria', 'Banette', 'Absol', 'Glalie', 'Salamence', 'Metagross', 'Latias', 'Latios', 'Garchomp', 'Lucario', 'Abomasnow', 'Audino', 'Diancie', 'Lopunny', 'Steelix', 'Sableye', 'Rayquaza']);
 const FAN_MEGA_SUFFIX = new Set(['absolmegaz', 'garchompmegaz', 'lucariomegaz']);
+const GMAX_CSV = {
+  toxtricitygmax: 'toxtricity-amped-gmax',
+  toxtricitylowkeygmax: 'toxtricity-low-key-gmax',
+  urshifugmax: 'urshifu-single-strike-gmax',
+  urshifurapidstrikegmax: 'urshifu-rapid-strike-gmax',
+};
 const formCsvName = (key) => {
+  if (GMAX_CSV[key]) return GMAX_CSV[key];
+  if (key.endsWith('gmax')) return `${key.slice(0, -4)}-gmax`;
   if (key.endsWith('megax')) return `${key.slice(0, -5)}-mega-x`;
   if (key.endsWith('megay')) return `${key.slice(0, -5)}-mega-y`;
   if (key.endsWith('mega')) return `${key.slice(0, -4)}-mega`;
   return key;
 };
+const isGmaxForme = (s) => s.forme === 'Gmax' || s.forme === 'Low-Key-Gmax' || s.forme === 'Rapid-Strike-Gmax';
 const GROWTH = { 1: 'slow', 2: 'mf', 3: 'fast', 4: 'ms', 5: 'erratic', 6: 'fluct' };
 
 // ---------------- moves ----------------
@@ -320,7 +329,8 @@ function addSpecies(key, s, opts = {}) {
   const csvS = speciesCsv.get(s.num) || {};
   const csvP = pokemonCsv.get(s.num) || pokemonByName.get(formCsvName(key)) || {};
   let name = (opts.displayName || s.name).toUpperCase().replace(/^NIDORAN-F$/, 'NIDORAN♀').replace(/^NIDORAN-M$/, 'NIDORAN♂');
-  name = name.replace(/-MEGA-X$/, ' MEGA X').replace(/-MEGA-Y$/, ' MEGA Y').replace(/-MEGA$/, ' MEGA');
+  name = name.replace(/-MEGA-X$/, ' MEGA X').replace(/-MEGA-Y$/, ' MEGA Y').replace(/-MEGA$/, ' MEGA')
+    .replace(/-GMAX$/, ' GMAX').replace(/-LOW-KEY-GMAX$/, ' GMAX').replace(/-RAPID-STRIKE-GMAX$/, ' GMAX');
   const abil = Object.values(s.abilities).map(a => a.toUpperCase());
   const ability = abil.find(a => ABILITY_SUPPORT.has(a)) || abil[0];
   const base = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'].map(k => s.baseStats[k]);
@@ -332,8 +342,9 @@ function addSpecies(key, s, opts = {}) {
   };
   if (csvS.is_legendary === '1') entry.leg = 1;
   if (csvS.is_mythical === '1') entry.leg = 2;
-  if (num > 649 || opts.mega) entry.spr = 'png';
+  if (num > 649 || opts.mega || opts.gmax) entry.spr = 'png';
   if (opts.mega) entry.mega = 1;
+  if (opts.gmax) entry.gmax = 1;
 
   const lv = levelUp(key);
   const all = [...learnable(key)].filter(id => MOVES[id]);
@@ -354,7 +365,7 @@ function addSpecies(key, s, opts = {}) {
   entry.set = set;
   entry.lv = lv.length ? lv : [[1, set[0]]];
 
-  if (!opts.mega && s.evos) {
+  if (!opts.mega && !opts.gmax && s.evos) {
     for (const evoName of s.evos) {
       const ek = toID(evoName), e = pokedex[ek];
       if (!e || e.num > MAX_NAT || e.forme) continue;
@@ -375,6 +386,21 @@ for (const [key, s] of Object.entries(pokedex)) {
   const csvRow = pokemonByName.get(formCsvName(key));
   const spriteId = csvRow ? +csvRow.id : s.num;
   addSpecies(key, s, { mega: true, gen: 6, spriteId, displayName: s.name });
+}
+
+function gmaxDisplayName(s) {
+  if (s.forme === 'Low-Key-Gmax') return `${s.baseSpecies} Low-Key Gmax`;
+  if (s.forme === 'Rapid-Strike-Gmax') return `${s.baseSpecies} Rapid Strike Gmax`;
+  return `${s.baseSpecies}-Gmax`;
+}
+for (const [key, s] of Object.entries(pokedex)) {
+  if (!isGmaxForme(s)) continue;
+  const csvRow = pokemonByName.get(formCsvName(key));
+  const spriteId = csvRow ? +csvRow.id : s.num;
+  const baseKey = toID(s.baseSpecies);
+  const base = pokedex[baseKey];
+  const gen = base ? (+speciesCsv.get(base.num)?.generation_id || 8) : 8;
+  addSpecies(key, s, { gmax: true, gen, spriteId, displayName: gmaxDisplayName(s) });
 }
 
 // Moves actually referenced, to keep the payload small.

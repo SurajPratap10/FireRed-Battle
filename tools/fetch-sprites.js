@@ -13,6 +13,11 @@ vm.runInContext(fs.readFileSync(path.join(root, 'js/trainers.js'), 'utf8') + ';t
 const toID = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 const showdownSlug = (key, d) => {
   const k = key.toLowerCase();
+  if (d.gmax) {
+    if (k === 'toxtricitygmax' || k === 'toxtricitylowkeygmax') return 'toxtricity-gmax';
+    if (k === 'urshifugmax' || k === 'urshifurapidstrikegmax') return 'urshifu-gmax';
+    if (k.endsWith('gmax')) return `${k.slice(0, -4)}-gmax`;
+  }
   if (!d.mega) return k;
   if (k.endsWith('megax')) return `${k.slice(0, -5)}-mega-x`;
   if (k.endsWith('megay')) return `${k.slice(0, -5)}-mega-y`;
