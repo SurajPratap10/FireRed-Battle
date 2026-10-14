@@ -52,13 +52,15 @@ const BattleMode = (() => {
   };
   persist();
   const $$ = (id) => document.getElementById(id);
-  const typeBadges = (types) => types.map(t => `<span class="type" style="background:${TYPE_COLORS[t]}">${t}</span>`).join('');
+  const nice = (s) => String(s || '').toLowerCase().replace(/(^|[^a-z0-9'])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+  const typeBadges = (types) => types.map(t => `<span class="type" style="background:${TYPE_COLORS[t]}">${nice(t)}</span>`).join('');
   const hideAll = () => ['builder', 'opponents', 'bmresult'].forEach(id => { $$(id).classList.add('hidden'); $$(id).innerHTML = ''; });
   const syncTeamHint = () => {
     const h = $$('tbHint');
     if (!h) return;
     const mc = megaCount(), gc = gmaxCount(), lc = countOf(isLeg), yc = countOf(isMyth);
-    h.innerHTML = `Team limits: <b>MEGA ${mc}/${MAX_MEGAS}</b> · <b class="gmax">G-MAX ${gc}/${MAX_GMAX}</b> · <span class="leg">LEG ${lc}/${MAX_LEGS}</span> · <span class="myth">MYTH ${yc}/${MAX_MYTHS}</span>`;
+    const chip = (cls, label, n, max) => `<span class="lim ${cls}"><b>${label}</b> ${n}/${max}</span>`;
+    h.innerHTML = chip('mega', 'Mega', mc, MAX_MEGAS) + chip('gmax', 'G-Max', gc, MAX_GMAX) + chip('leg', 'Legend', lc, MAX_LEGS) + chip('myth', 'Mythic', yc, MAX_MYTHS);
   };
 
   function pickRandomTeam() {
@@ -82,10 +84,10 @@ const BattleMode = (() => {
       const root = $$('bmresult');
       root.innerHTML = `
         <div class="rand-roll">
-          <div class="rand-title">⚡ RANDOM MODE</div>
-          <div class="rand-sub">Any Gen · Any Type · Randomized trainer teams</div>
+          <div class="rand-title">Random mode</div>
+          <div class="rand-sub">Any generation, any type, randomized teams</div>
           <div class="rand-block">
-            <div class="rand-label">YOUR TEAM</div>
+            <div class="rand-label">Your team</div>
             <div class="rand-sprites">${team.map(k => `<img src="${spritePathFor(DEX[k])}" title="${DEX[k].name}">`).join('')}</div>
           </div>
           <div class="rand-vs">VS</div>
@@ -94,7 +96,7 @@ const BattleMode = (() => {
             <img class="rand-trainer" src="assets/trainers/${t.sprite}.png" alt="">
             <div class="rand-sprites">${(foeTeam || t.team).map(k => `<img src="${spritePathFor(DEX[k])}">`).join('')}</div>
           </div>
-          <div class="rand-go btn go big" id="randGo">BATTLE! ▶</div>
+          <div class="rand-go btn go big" id="randGo">Battle</div>
         </div>`;
       root.classList.remove('hidden');
       let done = false;
@@ -141,26 +143,26 @@ const BattleMode = (() => {
     const labels = ['HP', 'ATK', 'DEF', 'SPA', 'SPD', 'SPE'];
     const bst = d.base.reduce((a, b) => a + b, 0);
     return `<div class="bd-top"><img src="${spritePathFor(d)}"><div>
-        <div class="bd-name">#${String(d.id).padStart(d.id >= 10000 ? 5 : 3, '0')} ${d.name}${d.mega ? ' <span class="mega">⬡ MEGA</span>' : ''}${d.gmax ? ' <span class="gmax">☁ G-MAX</span>' : ''}${d.leg === 2 ? ' <span class="myth">✦ MYTHIC</span>' : d.leg ? ' <span class="leg">★ LEGEND</span>' : ''}</div>
-        <div class="types">${typeBadges(d.types)}</div><div class="bd-ab">ABILITY: ${d.ability}</div></div></div>
+        <div class="bd-name">#${String(d.id).padStart(d.id >= 10000 ? 5 : 3, '0')} ${nice(d.name)}${d.mega ? ' <span class="mega">Mega</span>' : ''}${d.gmax ? ' <span class="gmax">G-Max</span>' : ''}${d.leg === 2 ? ' <span class="myth">Mythic</span>' : d.leg ? ' <span class="leg">Legend</span>' : ''}</div>
+        <div class="types">${typeBadges(d.types)}</div><div class="bd-ab">Ability · ${nice(d.ability)}</div></div></div>
       <div class="bd-stats">${d.base.map((v, i) => `<div class="bd-stat"><span>${labels[i]}</span><b>${v}</b><div class="bar"><div style="width:${Math.min(100, v / 1.8)}%;background:${v >= 110 ? '#40d080' : v >= 75 ? '#e8d040' : '#e87040'}"></div></div></div>`).join('')}
         <div class="bd-stat bst"><span>TOTAL</span><b>${bst}</b></div></div>
-      <div class="bd-moves">${d.set.map(id => { const m = MOVES[id]; return `<div class="bd-move"><span class="type" style="background:${TYPE_COLORS[m.type] || '#888'}">${m.type}</span>${m.name}<i>${m.cat === 'X' ? 'STATUS' : m.power}</i></div>`; }).join('')}</div>`;
+      <div class="bd-moves">${d.set.map(id => { const m = MOVES[id]; return `<div class="bd-move"><span class="type" style="background:${TYPE_COLORS[m.type] || '#888'}">${nice(m.type)}</span><span class="bd-mv">${nice(m.name)}</span><i>${m.cat === 'X' ? 'Status' : m.power}</i></div>`; }).join('')}</div>`;
   }
 
   function renderTeam() {
     const slots = [];
     for (let i = 0; i < 6; i++) {
       const k = team[i];
-      slots.push(k ? `<div class="tb-slot" data-i="${i}"><img src="${spritePathFor(DEX[k])}"><div class="tb-sname">${DEX[k].name}</div><div class="types">${typeBadges(DEX[k].types)}</div><span class="tb-x">✕</span></div>`
-        : `<div class="tb-slot empty">EMPTY</div>`);
+      slots.push(k ? `<div class="tb-slot" data-i="${i}"><img src="${spritePathFor(DEX[k])}"><div class="tb-sname">${nice(DEX[k].name)}</div><span class="tb-x">×</span></div>`
+        : `<div class="tb-slot empty">Empty</div>`);
     }
     $$('tbTeam').innerHTML = slots.join('');
     $$('tbTeam').querySelectorAll('.tb-slot[data-i]').forEach(n => {
       n.onclick = () => { team.splice(+n.dataset.i, 1); SFX.play('back'); persist(); renderTeam(); renderGrid(); };
       n.onmouseenter = () => { focus = team[+n.dataset.i]; $$('tbDetail').innerHTML = detailHTML(focus); };
     });
-    $$('tbCount').textContent = `${team.length}/6 · MEGA ${megaCount()}/${MAX_MEGAS} · G-MAX ${gmaxCount()}/${MAX_GMAX} · LEG ${countOf(isLeg)}/${MAX_LEGS} · MYTH ${countOf(isMyth)}/${MAX_MYTHS}`;
+    $$('tbCount').textContent = `${team.length} / 6`;
     $$('tbNext').classList.toggle('off', team.length === 0);
     syncTeamHint();
   }
@@ -173,9 +175,9 @@ const BattleMode = (() => {
       const locked = !team.includes(k) && !canAddTo(k, team);
       const rare = d.leg === 2 ? 'myth' : d.leg ? 'leg' : '';
       const tag = d.mega ? 'MEGA' : d.gmax ? 'G-MAX' : '#' + d.id;
-      return `<div class="tb-card ${team.includes(k) ? 'in' : ''} ${rare} ${d.mega ? 'mega' : ''} ${d.gmax ? 'gmax' : ''} ${locked ? 'mega-lock' : ''}" data-k="${k}"><img loading="lazy" src="${spritePathFor(d)}"><div class="tb-num">${tag}</div><div class="tb-name">${d.name}</div></div>`;
-    }).join('') || '<div class="tb-none">No POKéMON match.</div>';
-    $$('tbFound').textContent = `${list.length} POKéMON`;
+      return `<div class="tb-card ${team.includes(k) ? 'in' : ''} ${rare} ${d.mega ? 'mega' : ''} ${d.gmax ? 'gmax' : ''} ${locked ? 'mega-lock' : ''}" data-k="${k}"><img loading="lazy" src="${spritePathFor(d)}"><div class="tb-num">${tag}</div><div class="tb-name">${nice(d.name)}</div></div>`;
+    }).join('') || '<div class="tb-none">No Pokémon match that search.</div>';
+    $$('tbFound').textContent = `${list.length} Pokémon`;
     grid.onclick = (e) => {
       const c = e.target.closest('.tb-card'); if (!c) return;
       const k = c.dataset.k;
@@ -195,25 +197,35 @@ const BattleMode = (() => {
     hideAll();
     const root = $$('builder');
     root.innerHTML = `
-      <div class="bm-head"><div class="bm-title">BATTLE MODE · BUILD YOUR TEAM</div>
-        <div class="bm-btns"><div class="btn rand-mode" id="tbRandMode">⚡ RANDOM MODE</div><div class="btn" id="tbRandom">RANDOM TEAM</div><div class="btn" id="tbClear">CLEAR</div><div class="btn go" id="tbNext">NEXT ▶</div></div></div>
+      <div class="bm-head">
+        <div class="bm-brand">
+          <div class="bm-kicker">Battle Mode</div>
+          <div class="bm-title">Build your team</div>
+        </div>
+        <div class="bm-btns">
+          <div class="btn rand-mode" id="tbRandMode">Random mode</div>
+          <div class="btn" id="tbRandom">Random team</div>
+          <div class="btn" id="tbClear">Clear</div>
+          <div class="btn go" id="tbNext">Next</div>
+        </div>
+      </div>
       <div class="tb-body">
         <div class="tb-left">
           <div class="tb-filters">
             <div class="tb-gens">${['ALL', ...ROMAN, 'MEGA', 'G-MAX'].map((r, i) => {
               const cls = r === 'MEGA' ? 'megatab' : r === 'G-MAX' ? 'gmaxtab' : '';
-              const label = !i || r === 'MEGA' || r === 'G-MAX' ? r : 'GEN ' + r;
+              const label = !i ? 'All' : r === 'MEGA' ? 'Mega' : r === 'G-MAX' ? 'G-Max' : r;
               return `<div class="tab ${cls} ${i === gen ? 'on' : ''}" data-g="${i}">${label}</div>`;
             }).join('')}</div>
-            <div class="tb-hint" id="tbHint">Team limits: <b>MEGA 0/1</b> · <b class="gmax">G-MAX 0/1</b> · <span class="leg">LEG 0/2</span> · <span class="myth">MYTH 0/1</span></div>
-            <div class="tb-row"><input id="tbSearch" placeholder="SEARCH (e.g. GMAX, GENGAR)" value="${search}" autocomplete="off">
-              <select id="tbType"><option value="">ALL TYPES</option>${TYPES.map(t => `<option ${t === typeFilter ? 'selected' : ''}>${t}</option>`).join('')}</select>
+            <div class="tb-row"><input id="tbSearch" placeholder="Search Pokémon" value="${search}" autocomplete="off">
+              <select id="tbType"><option value="">All types</option>${TYPES.map(t => `<option value="${t}" ${t === typeFilter ? 'selected' : ''}>${t.charAt(0) + t.slice(1).toLowerCase()}</option>`).join('')}</select>
               <span id="tbFound"></span></div>
           </div>
           <div class="tb-grid" id="tbGrid"></div>
         </div>
         <div class="tb-right">
-          <div class="tb-label">YOUR TEAM <span id="tbCount"></span></div>
+          <div class="tb-label"><span>Your team</span><span class="tb-count" id="tbCount"></span></div>
+          <div class="tb-limits" id="tbHint"></div>
           <div class="tb-team" id="tbTeam"></div>
           <div class="tb-detail" id="tbDetail"></div>
         </div>
@@ -246,7 +258,7 @@ const BattleMode = (() => {
     return `<div class="op-card ${chosen === t.id ? 'sel' : ''} ${t.cat === 'LEGENDS' ? 'legend' : ''}" data-id="${t.id}">
       ${beaten.has(t.id) ? '<div class="op-star">★</div>' : ''}
       <img class="op-sprite" src="assets/trainers/${t.sprite}.png">
-      <div class="op-name">${t.name}</div><div class="op-title">${t.title}</div>
+      <div class="op-name">${nice(t.name)}</div><div class="op-title">${nice(t.title)}</div>
       <div class="op-type">${t.type === 'MIXED' || t.type === 'LEGEND' ? `<span class="type" style="background:${t.type === 'LEGEND' ? '#c89020' : '#707888'}">${t.type}</span>` : typeBadges([t.type])}</div>
       <div class="op-team">${t.team.map(k => `<img loading="lazy" src="${spritePathFor(DEX[k])}">`).join('')}</div></div>`;
   }
@@ -264,8 +276,8 @@ const BattleMode = (() => {
   function renderChosen() {
     const t = TRAINERS.find(x => x.id === chosen);
     $$('opBar').innerHTML = t
-      ? `<div class="op-quote"><b>${t.title} ${t.name}:</b> "${t.quote.replace('\n', ' ')}"${t.cat === 'LEGENDS' ? ' <span class="leg">OVERPOWERED</span>' : ''}</div><div class="btn go big" id="opFight">BATTLE! ▶</div>`
-      : '<div class="op-quote">Pick an opponent. Beaten opponents get a ★.</div>';
+      ? `<div class="op-quote"><b>${nice(t.title)} ${nice(t.name)}:</b> "${t.quote.replace('\n', ' ')}"${t.cat === 'LEGENDS' ? ' <span class="leg">Overpowered</span>' : ''}</div><div class="btn go big" id="opFight">Battle</div>`
+      : '<div class="op-quote">Pick an opponent. Beaten trainers get a star.</div>';
     if (t) $$('opFight').onclick = () => { leaveRandom(); startBattle(); };
   }
 
@@ -274,11 +286,19 @@ const BattleMode = (() => {
     const root = $$('opponents');
     const done = TRAINERS.filter(t => beaten.has(t.id)).length;
     root.innerHTML = `
-      <div class="bm-head"><div class="bm-title">CHOOSE YOUR OPPONENT <span class="bm-sub">${done}/${TRAINERS.length} BEATEN</span></div>
-        <div class="bm-btns"><div class="btn" id="opBack">◀ TEAM</div><div class="btn rand-mode" id="opRandMode">⚡ RANDOM MODE</div>
-          <div class="lvl"><span>LEVEL</span><div class="tab ${level === 50 ? 'on' : ''}" data-l="50">50</div><div class="tab ${level === 100 ? 'on' : ''}" data-l="100">100</div></div></div></div>
+      <div class="bm-head">
+        <div class="bm-brand">
+          <div class="bm-kicker">Battle Mode</div>
+          <div class="bm-title">Choose opponent <span class="bm-sub">${done}/${TRAINERS.length} beaten</span></div>
+        </div>
+        <div class="bm-btns">
+          <div class="btn" id="opBack">Back</div>
+          <div class="btn rand-mode" id="opRandMode">Random mode</div>
+          <div class="lvl"><span>Lv</span><div class="tab ${level === 50 ? 'on' : ''}" data-l="50">50</div><div class="tab ${level === 100 ? 'on' : ''}" data-l="100">100</div></div>
+        </div>
+      </div>
       <div class="op-mine">${team.map(k => `<img src="${spritePathFor(DEX[k])}" title="${DEX[k].name}">`).join('')}</div>
-      <div class="op-tabs" id="opTabs">${TRAINER_CATS.map(c => `<div class="tab ${c === 'LEGENDS' ? 'legtab' : ''}" data-c="${c}">${c}</div>`).join('')}</div>
+      <div class="op-tabs" id="opTabs">${TRAINER_CATS.map(c => `<div class="tab ${c === 'LEGENDS' ? 'legtab' : ''}" data-c="${c}">${nice(c)}</div>`).join('')}</div>
       <div class="op-grid" id="opGrid"></div>
       <div class="op-bar" id="opBar"></div>`;
     root.classList.remove('hidden');
@@ -328,7 +348,7 @@ const BattleMode = (() => {
     ];
     let c = 0;
     let locked = false;
-    root.innerHTML = `<div class="res-home btn" id="resHome" role="button">◀ HOME</div>
+    root.innerHTML = `<div class="res-home btn" id="resHome" role="button">Home</div>
         <div class="res-title ${won ? 'win' : 'lose'}">${won ? 'VICTORY!' : 'DEFEAT...'}</div>
         <img class="res-trainer" src="assets/trainers/${t.sprite}.png">
         <div class="res-sub">${won ? `You defeated ${t.title} ${t.name}!` : `${t.title} ${t.name} was too strong...`}</div>
